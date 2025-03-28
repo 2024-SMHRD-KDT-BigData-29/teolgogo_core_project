@@ -1,0 +1,12 @@
+@media all and (display-mode: standalone) {
+    body {
+      width: 100%;
+      margin: 0 auto;
+    }
+    
+    .pwa-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+  }

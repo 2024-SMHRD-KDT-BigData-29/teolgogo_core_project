@@ -1,0 +1,75 @@
+.addToHomeScreenContainer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    padding: 10px;
+  }
+  
+  .addToHomeScreenBanner {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .bannerContent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .appIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+  }
+  
+  .bannerText {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .bannerText strong {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  
+  .bannerText span {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .bannerActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  
+  .laterButton {
+    padding: 10px 16px;
+    border: none;
+    background: none;
+    color: #666;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .installButton {
+    padding: 10px 16px;
+    border: none;
+    background-color: #3f51b5;
+    color: white;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .installButton:hover {
+    background-color: #303f9f;
+  }

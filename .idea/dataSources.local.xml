@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal" created-in="IU-243.26053.27">
+    <data-source name="mp_24K_bigdata29_p2_1@project-db-campus.smhrd.com" uuid="4197f0f0-6a11-4b12-8029-cbc05a459aa9">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="MARIADB" />
+      <user-name>mp_24K_bigdata29_p2_1</user-name>
+      <schema-mapping />
+    </data-source>
+  </component>
+</project>

@@ -1,0 +1,27 @@
+# 공통
+.DS_Store
+*.log
+*.tmp
+*.bak
+*.swp
+
+# node.js / frontend
+frontend/node_modules/
+frontend/.next/
+frontend/.env
+frontend/out/
+frontend/package-lock.json
+
+# Java / backend
+backend/teolgogo-api/target/
+backend/teolgogo-api/.idea/
+backend/teolgogo-api/.classpath
+backend/teolgogo-api/.project
+backend/teolgogo-api/.settings/
+backend/teolgogo-api/.env
+backend/teolgogo-api/*.iml
+
+# OS별
+Thumbs.db
+ehthumbs.db
+*.DS_Store
