@@ -5,60 +5,33 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aa088c94-ef7c-4a6f-9245-7167fa938009" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/.gitattributes" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/build.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/settings.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/TeolgogoApiApplication.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/controller/AuthController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/dto/LoginRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/dto/OAuth2UserInfo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/dto/SignupRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/dto/TokenResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/User.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/UserRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/security/CustomOAuth2UserService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/security/CustomUserDetailsService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/security/JwtAuthenticationFilter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/security/JwtTokenProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/security/OAuth2AuthenticationFailureHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/security/OAuth2AuthenticationSuccessHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/security/OAuth2UserPrincipal.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/AuthService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/util/CookieUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/test/java/com/teolgogo/TeolgogoApiApplicationTests.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/eslint.config.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/next.config.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/postcss.config.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/file.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/globe.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/next.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/vercel.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/window.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/api/client.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/favicon.ico" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/globals.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/layout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/login/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/oauth2/redirect/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/signup/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/auth/SocialLoginButtons.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/map/KakaoMap.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/context/AuthContext.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/.gradle/8.13/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/.gradle/8.13/fileHashes/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/.gradle/8.13/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/.gradle/8.13/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/config/FileStorageConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/config/FileStorageConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/ChatMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/ChatMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/FileEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/FileEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/QuoteRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/QuoteRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/QuoteResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/QuoteResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/ChatMessageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/ChatMessageRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/FileRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/FileRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/QuoteRequestRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/QuoteRequestRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/ChatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/FileService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/FileService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/chat.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/chat.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/quotation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/quotation.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/chat/[roomId]/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/chat/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/chat/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/login/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/oauth2/redirect/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/oauth2/redirect/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/quotes/create/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/quotes/create/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/quotes/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/quotes/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/signup/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/signup/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/auth/SocialLoginButtons.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/auth/SocialLoginButtons.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/context/AuthContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/context/AuthContext.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/_app.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/styles/AddToHomeScreen.module.css" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,6 +85,9 @@
     &quot;accountId&quot;: &quot;e3cbea4c-f812-448b-97e2-a656c88d79fc&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
@@ -120,31 +96,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Gradle.Build teolgogo-api.executor&quot;: &quot;Run&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Spring Boot.TeolgogoApiApplication.executor&quot;: &quot;Run&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/smhrd/teolgogo_core_project/backend/teolgogo-api/settings.gradle.kts&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\IDE\\ideaIU-2024.3.5.win\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.Build teolgogo-api.executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.TeolgogoApiApplication.executor": "Run",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/smhrd/teolgogo_core_project/backend/teolgogo-api/settings.gradle.kts",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Problems",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "ts.external.directory.path": "C:\\IDE\\ideaIU-2024.3.5.win\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="teolgogo_core_project" />
@@ -185,7 +162,7 @@
       <workItem from="1743052289560" duration="369000" />
       <workItem from="1743139964965" duration="20602000" />
       <workItem from="1743161818244" duration="206000" />
-      <workItem from="1743162038368" duration="4734000" />
+      <workItem from="1743162038368" duration="11698000" />
     </task>
     <servers />
   </component>

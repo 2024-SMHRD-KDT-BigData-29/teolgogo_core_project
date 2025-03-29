@@ -59,8 +59,8 @@ public class QuoteRequest {
     @OneToMany(mappedBy = "quoteRequest", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuoteItem> items = new ArrayList<>();
 
-    // 반려동물 사진 관련 필드 추가
-    @OneToMany(mappedBy = "quoteRequestId", cascade = CascadeType.ALL)
+    // 반려동물 사진 관련 필드 수정 - mappedBy를 quoteRequest로 변경
+    @OneToMany(mappedBy = "quoteRequest", cascade = CascadeType.ALL)
     private List<FileEntity> petPhotos = new ArrayList<>();
 
     @PrePersist

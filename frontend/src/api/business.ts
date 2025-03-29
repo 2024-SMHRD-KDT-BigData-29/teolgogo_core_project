@@ -25,6 +25,17 @@ export const getBusinessProfile = async () => {
   }
 };
 
+// 특정 ID의 업체 프로필 정보 가져오기 (새로 추가)
+export const getBusinessProfileById = async (businessId: number | string) => {
+  try {
+    const response = await apiClient.get(`/business/${businessId}`);
+    return response.data;
+  } catch (error) {
+    console.error('업체 프로필 가져오기 실패:', error);
+    throw error;
+  }
+};
+
 // 업체 프로필 정보 업데이트
 export const updateBusinessProfile = async (profileData: any) => {
   try {

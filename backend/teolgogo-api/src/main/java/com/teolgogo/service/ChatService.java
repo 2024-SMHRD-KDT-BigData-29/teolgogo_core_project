@@ -181,7 +181,7 @@ public class ChatService {
                 .chatRoom(savedRoom)
                 .sender(customer) // 시스템 메시지지만 고객 이름으로 표시
                 .content("채팅방이 개설되었습니다. 서비스에 대해 자유롭게 상담해보세요!")
-                .read(true)
+                .isRead(true)
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -210,7 +210,7 @@ public class ChatService {
                 .sender(sender)
                 .content(messageDTO.getContent())
                 .timestamp(LocalDateTime.now())
-                .read(false)
+                .isRead(false)
                 .build();
 
         ChatMessage savedMessage = chatMessageRepository.save(message);

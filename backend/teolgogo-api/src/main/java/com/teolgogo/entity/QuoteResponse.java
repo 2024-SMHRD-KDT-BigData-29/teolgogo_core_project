@@ -47,12 +47,12 @@ public class QuoteResponse {
     private LocalDateTime availableDate; // 가능한 날짜
     private LocalDateTime createdAt;
 
-    // 미용 전/후 사진 관련 필드 추가
-    @OneToMany(mappedBy = "quoteResponseId", cascade = CascadeType.ALL)
+    // 미용 전/후 사진 관련 필드 수정 - mappedBy 변경
+    @OneToMany(mappedBy = "quoteResponse", cascade = CascadeType.ALL)
     @Builder.Default
     private List<FileEntity> beforePhotos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "quoteResponseId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "quoteResponse", cascade = CascadeType.ALL)
     @Builder.Default
     private List<FileEntity> afterPhotos = new ArrayList<>();
 

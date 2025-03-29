@@ -9,9 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@stomp/stompjs": "^7.1.0",
     "@tanstack/react-query": "^5.69.0",
     "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.8.4",
+    "date-fns": "^4.1.0",
     "jwt-decode": "^4.0.0",
     "next": "15.2.4",
     "next-auth": "^4.24.11",

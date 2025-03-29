@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.util.unit.DataSize;  // DataSize 클래스 import
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
@@ -19,8 +20,24 @@ public class FileStorageConfig {
     @Value("${app.file.upload-dir:./uploads}")
     private String uploadDir;
 
-    @Value("${app.file.max-size:10485760}") // 기본 10MB
+    // 변경: String으로 받아서 DataSize로 변환
+    @Value("${app.file.max-size:10485760}")
+    private String maxFileSizeString;
+
+    // DataSize로 변환된 값을 저장할 필드
     private long maxFileSize;
+
+    // 초기화 시 DataSize로 변환
+    @PostConstruct
+    public void init() {
+        // 문자열로 지정된 경우 (10MB 등) DataSize로 변환
+        if (maxFileSizeString.contains("MB") || maxFileSizeString.contains("KB")) {
+            this.maxFileSize = DataSize.parse(maxFileSizeString).toBytes();
+        } else {
+            // 숫자만 있는 경우 직접 파싱
+            this.maxFileSize = Long.parseLong(maxFileSizeString);
+        }
+    }
 
     @Bean
     public MultipartResolver multipartResolver() {
@@ -42,5 +59,10 @@ public class FileStorageConfig {
                 Files.createDirectories(path);
             }
         }
+    }
+
+    // getter 추가
+    public long getMaxFileSize() {
+        return maxFileSize;
     }
 }

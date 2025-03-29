@@ -98,7 +98,7 @@ export default function Home() {
   }, []);
   
   // 서비스 선택 핸들러
-  const handleServiceSelect = (serviceId) => {
+  const handleServiceSelect = (serviceId: string) => {
     if (isAuthenticated) {
       // 로그인 상태면 견적 요청 페이지로 이동
       router.push(`/quotation/new?service=${serviceId}`);

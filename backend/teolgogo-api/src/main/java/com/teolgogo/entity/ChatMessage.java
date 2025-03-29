@@ -31,13 +31,14 @@ public class ChatMessage {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    private boolean read;
+    @Column(name = "is_read") // 컬럼명을 'is_read'로 변경
+    private boolean isRead;  // 필드명을 'isRead'로 변경
 
     private LocalDateTime timestamp;
 
     @PrePersist
     public void prePersist() {
         timestamp = LocalDateTime.now();
-        read = false;
+        isRead = false; // read -> isRead로 변경
     }
 }

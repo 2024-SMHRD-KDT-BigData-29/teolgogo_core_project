@@ -82,21 +82,22 @@ app:
     kakao-api-key: ${KAKAO_MAP_API_KEY}
   file:
     upload-dir: ./uploads
-    max-size: 10MB
+    max-size: 10485760  # 10MB를 바이트 단위로 표현 (10 * 1024 * 1024)
     allowed-types: image/jpeg,image/png,image/gif
   payment:
     toss:
-      client-key: ${TOSS_CLIENT_KEY}
-      secret-key: ${TOSS_SECRET_KEY}
-      success-url: ${TOSS_SUCCESS_URL:http://localhost:3000/payments/success}
-      fail-url: ${TOSS_FAIL_URL:http://localhost:3000/payments/fail}
+      client-key: dummy_client_key
+      secret-key: dummy_secret_key
+      success-url: http://localhost:3000/payments/success
+      fail-url: http://localhost:3000/payments/fail
       api-url: ${TOSS_API_URL:https://api.tosspayments.com/v1}
     kakao:
-      admin-key: ${KAKAO_ADMIN_KEY}
-      cid: ${KAKAO_CID:TC0ONETIME}
-      approval-url: ${KAKAO_APPROVAL_URL:http://localhost:3000/payments/kakao/approval}
-      cancel-url: ${KAKAO_CANCEL_URL:http://localhost:3000/payments/kakao/cancel}
-      fail-url: ${KAKAO_FAIL_URL:http://localhost:3000/payments/kakao/fail}
+      admin-key: dummy_key
+      # 다른 관련 속성들에도 더미 값 추가
+      cid: TC0ONETIME
+      approval-url: http://localhost:3000/payments/kakao/approval
+      cancel-url: http://localhost:3000/payments/kakao/cancel
+      fail-url: http://localhost:3000/payments/kakao/fail
       api-url: ${KAKAO_API_URL:https://kapi.kakao.com}
 
 # 서버 설정

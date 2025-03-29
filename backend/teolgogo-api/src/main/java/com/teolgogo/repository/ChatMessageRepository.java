@@ -10,11 +10,11 @@ import java.util.List;
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
-    List<ChatMessage> findByChatRoomIdOrderBySentAtAsc(Long roomId);
+    List<ChatMessage> findByChatRoomIdOrderByTimestampAsc(Long roomId);
 
-    List<ChatMessage> findByChatRoomIdAndSenderIdNotAndReadFalse(Long roomId, Long senderId);
+    List<ChatMessage> findByChatRoomIdAndSenderIdNotAndIsReadFalse(Long chatRoomId, Long senderId);
 
-    @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.chatRoom.id = ?1 AND m.sender.id <> ?2 AND m.read = false")
+    @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.chatRoom.id = ?1 AND m.sender.id <> ?2 AND m.isRead = false")
     int countUnreadMessages(Long roomId, Long userId);
 
     void deleteByChatRoomId(Long roomId);

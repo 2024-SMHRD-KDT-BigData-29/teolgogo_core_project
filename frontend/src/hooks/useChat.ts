@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import * as StompJs from '@stomp/stompjs';
+import { ChatMessage } from '@/types/chat'; // 중앙 집중식 타입 사용
 
 interface ChatMessage {
   id: string;

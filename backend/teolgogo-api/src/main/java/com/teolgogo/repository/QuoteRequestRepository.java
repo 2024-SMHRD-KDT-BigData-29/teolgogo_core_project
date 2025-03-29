@@ -26,10 +26,11 @@ public interface QuoteRequestRepository extends JpaRepository<QuoteRequest, Long
                     "sin(radians(qr.latitude)))) <= :radius " +
                     "ORDER BY qr.created_at DESC",
             nativeQuery = true)
-    List<QuoteRequest> findByStatusAndLocation(QuoteRequest.RequestStatus status,
-                                               Double latitude,
-                                               Double longitude,
-                                               Double distance);
+    List<QuoteRequest> findByStatusAndLocation(
+            @Param("status") QuoteRequest.RequestStatus status,
+            @Param("latitude") Double latitude,
+            @Param("longitude") Double longitude,
+            @Param("radius") Double radius);
 
     // 고객 ID와 상태로 견적 요청 목록 조회
     List<QuoteRequest> findByCustomerIdAndStatus(Long customerId, QuoteRequest.RequestStatus status);

@@ -1,8 +1,12 @@
 package com.teolgogo.service;
 
 import com.teolgogo.entity.FileEntity;
+import com.teolgogo.entity.QuoteRequest;
+import com.teolgogo.entity.QuoteResponse;
 import com.teolgogo.entity.User;
 import com.teolgogo.repository.FileRepository;
+import com.teolgogo.repository.QuoteRequestRepository;
+import com.teolgogo.repository.QuoteResponseRepository;
 import com.teolgogo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,11 +35,17 @@ public class FileService {
 
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
+    private final QuoteRequestRepository quoteRequestRepository;
+    private final QuoteResponseRepository quoteResponseRepository;
 
     @Autowired
-    public FileService(FileRepository fileRepository, UserRepository userRepository) {
+    public FileService(FileRepository fileRepository, UserRepository userRepository,
+                       QuoteRequestRepository quoteRequestRepository,
+                       QuoteResponseRepository quoteResponseRepository) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
+        this.quoteRequestRepository = quoteRequestRepository;
+        this.quoteResponseRepository = quoteResponseRepository;
     }
 
     /**
@@ -72,6 +82,20 @@ public class FileService {
                     .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
         }
 
+        // 견적 요청 조회
+        QuoteRequest quoteRequest = null;
+        if (quoteRequestId != null) {
+            quoteRequest = quoteRequestRepository.findById(quoteRequestId)
+                    .orElseThrow(() -> new EntityNotFoundException("견적 요청을 찾을 수 없습니다."));
+        }
+
+        // 견적 응답 조회
+        QuoteResponse quoteResponse = null;
+        if (quoteResponseId != null) {
+            quoteResponse = quoteResponseRepository.findById(quoteResponseId)
+                    .orElseThrow(() -> new EntityNotFoundException("견적 응답을 찾을 수 없습니다."));
+        }
+
         // 파일 정보 DB에 저장
         FileEntity fileEntity = FileEntity.builder()
                 .fileName(fileName)
@@ -81,8 +105,8 @@ public class FileService {
                 .fileSize(file.getSize())
                 .category(category)
                 .uploader(uploader)
-                .quoteRequestId(quoteRequestId)
-                .quoteResponseId(quoteResponseId)
+                .quoteRequest(quoteRequest)    // 엔티티 참조로 변경
+                .quoteResponse(quoteResponse)  // 엔티티 참조로 변경
                 .build();
 
         return fileRepository.save(fileEntity);
@@ -109,7 +133,7 @@ public class FileService {
      * 견적 요청에 연결된 반려동물 사진 목록 조회
      */
     public List<FileEntity> getPetPhotosByQuoteRequestId(Long quoteRequestId) {
-        return fileRepository.findByQuoteRequestIdAndCategory(
+        return fileRepository.findByQuoteRequest_IdAndCategory(
                 quoteRequestId, FileEntity.FileCategory.PET_PHOTO);
     }
 
@@ -117,7 +141,7 @@ public class FileService {
      * 견적 응답에 연결된 미용 전/후 사진 목록 조회
      */
     public List<FileEntity> getBeforeAfterPhotosByQuoteResponseId(Long quoteResponseId) {
-        return fileRepository.findByQuoteResponseId(quoteResponseId);
+        return fileRepository.findByQuoteResponse_Id(quoteResponseId);
     }
 
     /**

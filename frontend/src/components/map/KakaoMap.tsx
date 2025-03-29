@@ -13,6 +13,8 @@ interface KakaoMapProps {
   latitude?: number;
   longitude?: number;
   level?: number;
+  onMapInitialized?: (map: any, kakao: any) => void; // 이 속성 추가
+  useLibraries?: string; // 이 속성도 필요해 보입니다
 }
 
 // 기본값이 포함된 카카오 지도 컴포넌트
@@ -21,7 +23,9 @@ export default function KakaoMap({
   height = '400px',
   latitude = 37.566826,  // 기본값: 서울시청
   longitude = 126.9786567,
-  level = 3
+  level = 3,
+  onMapInitialized, // 이 속성 추가
+  useLibraries = "" // 이 속성도 추가
 }: KakaoMapProps) {
   // 지도 인스턴스를 상태로 관리
   const [map, setMap] = useState<any>(null);
@@ -52,21 +56,26 @@ export default function KakaoMap({
       
       // 마커를 지도에 표시
       marker.setMap(kakaoMap);
+      
+      // onMapInitialized 콜백 호출 (존재하는 경우)
+      if (onMapInitialized) {
+        onMapInitialized(kakaoMap, window.kakao);
+      }
     }
-  }, [latitude, longitude, level, isScriptLoaded]);
+  }, [latitude, longitude, level, isScriptLoaded, onMapInitialized]);
 
   return (
     <>
       {/* 카카오 맵 스크립트 로드 */}
       <Script
-        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_APP_KEY&autoload=false`}
-        onLoad={() => {
-          // 스크립트 로드 후 카카오 지도 SDK 초기화
-          window.kakao.maps.load(() => {
-            setIsScriptLoaded(true);
-          });
-        }}
-      />
+  src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_APP_KEY&libraries=${useLibraries}&autoload=false`}
+  onLoad={() => {
+    // 스크립트 로드 후 카카오 지도 SDK 초기화
+    window.kakao.maps.load(() => {
+      setIsScriptLoaded(true);
+    });
+  }}
+/>
       
       {/* 지도가 표시될 div */}
       <div 

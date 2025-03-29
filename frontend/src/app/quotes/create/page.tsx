@@ -1,37 +1,96 @@
 // src/app/quotes/create/page.tsx
-// 견적 요청 폼
+// 견적 요청 폼 - 반려동물 미용 서비스 요청을 위한 페이지
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import EnhancedKakaoMap from '@/components/map/EnhancedKakaoMap';
-import { createQuoteRequest } from '@/api/quote';
 import { useAuth } from '@/context/AuthContext';
+import { createQuotationRequest, QuoteItem } from '@/api/quotation';
+import { useLocation } from '@/hooks/useLocation';
+import EnhancedKakaoMap from '@/components/map/EnhancedKakaoMap';
+
+// 반려동물 사진 타입 정의
+interface PetPhoto {
+  file: File;
+  preview: string;
+}
 
 export default function CreateQuoteRequestPage() {
+  const { isAuthenticated, user } = useAuth();
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { getCurrentLocation, getAddressFromCoords } = useLocation();
   
   // 폼 상태 관리
   const [formData, setFormData] = useState({
     title: '',
+    petType: 'DOG' as 'DOG' | 'CAT' | 'OTHER',
+    petBreed: '',
+    petAge: 0,
+    petWeight: 0,
+    serviceType: 'BASIC' as 'BASIC' | 'SPECIAL' | 'BATH' | 'STYLING',
     description: '',
     latitude: 0,
     longitude: 0,
     address: '',
     addressDetail: '',
-    items: [{ name: '', quantity: 1, description: '' }]
+    preferredDate: '',
   });
   
+  // 항목 관리
+  const [items, setItems] = useState<QuoteItem[]>([]);
+  const [newItem, setNewItem] = useState<QuoteItem>({
+    name: '',
+    description: '',
+    price: 0,
+    type: 'BASIC_GROOMING',
+  });
+  
+  // 사진 관리
+  const [petPhotos, setPetPhotos] = useState<PetPhoto[]>([]);
+  
+  // 상태 관리
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  
-  // 위치가 선택되었는지 확인
+  const [locationLoading, setLocationLoading] = useState(false);
   const [locationSelected, setLocationSelected] = useState(false);
   
+  // 비로그인 상태 또는 업체 회원인 경우 리디렉션
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login?redirect=/quotes/create');
+    } else if (user && user.role !== 'CUSTOMER') {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, user, router]);
+  
+  // 현재 위치 가져오기
+  const fetchCurrentLocation = async () => {
+    setLocationLoading(true);
+    try {
+      const { latitude, longitude } = await getCurrentLocation();
+      const address = await getAddressFromCoords(latitude, longitude);
+      
+      setFormData(prev => ({
+        ...prev,
+        latitude,
+        longitude,
+        address: address || prev.address,
+      }));
+      setLocationSelected(true);
+    } catch (error) {
+      console.error('위치 정보를 가져오는데 실패했습니다:', error);
+      setErrors(prev => ({
+        ...prev,
+        location: '위치 정보를 가져오는데 실패했습니다. 주소를 직접 입력해주세요.'
+      }));
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+  
   // 입력 변경 핸들러
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -48,39 +107,47 @@ export default function CreateQuoteRequestPage() {
     }
   };
   
-  // 항목 변경 핸들러
-  const handleItemChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // 새 아이템 입력 핸들러
+  const handleNewItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    const updatedItems = [...formData.items];
-    
-    updatedItems[index] = {
-      ...updatedItems[index],
-      [name]: name === 'quantity' ? parseInt(value) || 0 : value
-    };
-    
-    setFormData(prev => ({
+    setNewItem(prev => ({
       ...prev,
-      items: updatedItems
+      [name]: name === 'price' ? parseInt(value) || 0 : value,
     }));
   };
   
-  // 항목 추가 핸들러
+  // 아이템 추가 핸들러
   const handleAddItem = () => {
-    setFormData(prev => ({
-      ...prev,
-      items: [...prev.items, { name: '', quantity: 1, description: '' }]
-    }));
+    if (!newItem.name || newItem.price <= 0) {
+      setErrors(prev => ({
+        ...prev,
+        items: '서비스 이름과 가격을 입력해주세요.'
+      }));
+      return;
+    }
+    
+    setItems(prev => [...prev, { ...newItem, id: Date.now() }]);
+    setNewItem({
+      name: '',
+      description: '',
+      price: 0,
+      type: 'BASIC_GROOMING',
+    });
+    
+    // 에러 제거
+    if (errors.items) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.items;
+        return newErrors;
+      });
+    }
   };
   
-  // 항목 삭제 핸들러
-  const handleRemoveItem = (index: number) => {
-    const updatedItems = [...formData.items];
-    updatedItems.splice(index, 1);
-    
-    setFormData(prev => ({
-      ...prev,
-      items: updatedItems
-    }));
+  // 아이템 삭제 핸들러
+  const handleRemoveItem = (id: number | undefined) => {
+    if (!id) return;
+    setItems(prev => prev.filter(item => item.id !== id));
   };
   
   // 위치 선택 핸들러
@@ -92,6 +159,66 @@ export default function CreateQuoteRequestPage() {
       address: address
     }));
     setLocationSelected(true);
+    
+    // 위치 오류 제거
+    if (errors.location) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.location;
+        return newErrors;
+      });
+    }
+  };
+  
+  // 사진 업로드 핸들러
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    
+    const newPhotos: PetPhoto[] = [];
+    
+    Array.from(files).forEach(file => {
+      // 5MB 이하의 이미지 파일만 허용
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors(prev => ({
+          ...prev,
+          photo: '5MB 이하의 이미지 파일만 업로드 가능합니다.'
+        }));
+        return;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        setErrors(prev => ({
+          ...prev,
+          photo: '이미지 파일만 업로드 가능합니다.'
+        }));
+        return;
+      }
+      
+      const preview = URL.createObjectURL(file);
+      newPhotos.push({ file, preview });
+    });
+    
+    setPetPhotos(prev => [...prev, ...newPhotos]);
+    
+    // 사진 오류 제거
+    if (errors.photo && newPhotos.length > 0) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.photo;
+        return newErrors;
+      });
+    }
+  };
+  
+  // 사진 삭제 핸들러
+  const handleRemovePhoto = (index: number) => {
+    setPetPhotos(prev => {
+      const updated = [...prev];
+      URL.revokeObjectURL(updated[index].preview);
+      updated.splice(index, 1);
+      return updated;
+    });
   };
   
   // 폼 유효성 검사
@@ -100,6 +227,18 @@ export default function CreateQuoteRequestPage() {
     
     if (!formData.title.trim()) {
       newErrors.title = '제목을 입력해주세요.';
+    }
+    
+    if (!formData.petBreed.trim()) {
+      newErrors.petBreed = '품종을 입력해주세요.';
+    }
+    
+    if (formData.petAge <= 0) {
+      newErrors.petAge = '나이를 입력해주세요.';
+    }
+    
+    if (formData.petWeight <= 0) {
+      newErrors.petWeight = '체중을 입력해주세요.';
     }
     
     if (!formData.description.trim()) {
@@ -112,12 +251,6 @@ export default function CreateQuoteRequestPage() {
     
     if (!formData.addressDetail.trim()) {
       newErrors.addressDetail = '상세 주소를 입력해주세요.';
-    }
-    
-    // 항목 유효성 검사
-    const invalidItems = formData.items.filter(item => !item.name.trim());
-    if (invalidItems.length > 0) {
-      newErrors.items = '모든 항목에 이름을 입력해주세요.';
     }
     
     setErrors(newErrors);
@@ -142,8 +275,18 @@ export default function CreateQuoteRequestPage() {
     setLoading(true);
     
     try {
+      // 견적 요청 데이터 준비
+      const requestData = {
+        ...formData,
+        items: items.map(({ id, ...item }) => item), // id 제외
+        preferredDate: formData.preferredDate ? new Date(formData.preferredDate).toISOString() : undefined,
+      };
+      
+      // 사진 파일 준비
+      const photoFiles = petPhotos.map(photo => photo.file);
+      
       // API 호출
-      const response = await createQuoteRequest(formData);
+      const response = await createQuotationRequest(requestData, photoFiles);
       
       // 성공 시 상세 페이지로 이동
       router.push(`/quotes/${response.id}`);
@@ -156,6 +299,20 @@ export default function CreateQuoteRequestPage() {
       setLoading(false);
     }
   };
+  
+  // 서비스 타입 옵션
+  const itemTypes = [
+    { value: 'BASIC_GROOMING', label: '기본 미용' },
+    { value: 'SPECIAL_CARE', label: '스페셜 케어' },
+    { value: 'BATH', label: '목욕' },
+    { value: 'NAIL_TRIM', label: '발톱 관리' },
+    { value: 'EAR_CLEANING', label: '귀 청소' },
+    { value: 'TEETH_BRUSHING', label: '치아 관리' },
+    { value: 'STYLING', label: '스타일링' },
+    { value: 'DESHEDDING', label: '털 관리' },
+    { value: 'FLEA_TREATMENT', label: '벼룩 방지' },
+    { value: 'CUSTOM', label: '커스텀 서비스' },
+  ];
 
   return (
     <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -191,6 +348,154 @@ export default function CreateQuoteRequestPage() {
             )}
           </div>
           
+          {/* 반려동물 정보 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                반려동물 종류 <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="petType"
+                value={formData.petType}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="DOG">강아지</option>
+                <option value="CAT">고양이</option>
+                <option value="OTHER">기타</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                품종 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="petBreed"
+                value={formData.petBreed}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="예: 말티즈, 푸들, 페르시안 등"
+                required
+              />
+              {errors.petBreed && (
+                <p className="mt-1 text-sm text-red-600">{errors.petBreed}</p>
+              )}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                나이 (개월) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="petAge"
+                value={formData.petAge}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                min="1"
+                placeholder="예: 24"
+                required
+              />
+              {errors.petAge && (
+                <p className="mt-1 text-sm text-red-600">{errors.petAge}</p>
+              )}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                체중 (kg) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="petWeight"
+                value={formData.petWeight}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                min="0.1"
+                step="0.1"
+                placeholder="예: 3.5"
+                required
+              />
+              {errors.petWeight && (
+                <p className="mt-1 text-sm text-red-600">{errors.petWeight}</p>
+              )}
+            </div>
+          </div>
+          
+          {/* 반려동물 사진 업로드 */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              반려동물 사진 업로드 (최대 5MB)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handlePhotoUpload}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.photo && (
+              <p className="mt-1 text-sm text-red-600">{errors.photo}</p>
+            )}
+            
+            {petPhotos.length > 0 && (
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {petPhotos.map((photo, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={photo.preview}
+                      alt={`Pet ${index + 1}`}
+                      className="h-32 w-full object-cover rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePhoto(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* 서비스 유형 */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              원하는 서비스 종류 <span className="text-red-500">*</span>
+            </label>
+            <select
+              name="serviceType"
+              value={formData.serviceType}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="BASIC">기본 미용</option>
+              <option value="SPECIAL">스페셜 케어</option>
+              <option value="BATH">목욕/위생</option>
+              <option value="STYLING">스타일링</option>
+            </select>
+          </div>
+          
+          {/* 희망 날짜 */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              희망 날짜
+            </label>
+            <input
+              type="datetime-local"
+              name="preferredDate"
+              value={formData.preferredDate}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          
           {/* 상세 설명 */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
@@ -203,7 +508,7 @@ export default function CreateQuoteRequestPage() {
               value={formData.description}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="필요한 서비스에 대해 자세히 설명해주세요"
+              placeholder="원하시는 스타일이나 주의사항 등을 자세히 적어주세요."
             />
             {errors.description && (
               <p className="mt-1 text-sm text-red-600">{errors.description}</p>
@@ -214,6 +519,17 @@ export default function CreateQuoteRequestPage() {
         {/* 위치 선택 섹션 */}
         <div className="bg-white shadow-sm rounded-lg p-6">
           <h2 className="text-lg font-medium mb-4">위치 정보</h2>
+          
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={fetchCurrentLocation}
+              disabled={locationLoading}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              {locationLoading ? '위치 가져오는 중...' : '현재 위치 가져오기'}
+            </button>
+          </div>
           
           <p className="text-sm text-gray-600 mb-4">
             지도에서 원하는 위치를 클릭하거나 마커를 드래그하여 위치를 선택해주세요.
@@ -252,88 +568,121 @@ export default function CreateQuoteRequestPage() {
         
         {/* 견적 항목 섹션 */}
         <div className="bg-white shadow-sm rounded-lg p-6">
-          <h2 className="text-lg font-medium mb-4">견적 항목</h2>
+          <h2 className="text-lg font-medium mb-4">견적 항목 (선택사항)</h2>
           
           {errors.items && (
             <p className="mb-4 text-sm text-red-600">{errors.items}</p>
           )}
           
-          {formData.items.map((item, index) => (
-            <div 
-              key={index} 
-              className="mb-6 pb-6 border-b border-gray-200 last:border-0 last:mb-0 last:pb-0"
-            >
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-sm font-medium">항목 {index + 1}</h3>
-                {formData.items.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveItem(index)}
-                    className="text-sm text-red-600 hover:text-red-800"
-                  >
-                    삭제
-                  </button>
-                )}
-              </div>
-              
-              {/* 항목 이름 */}
-              <div className="mb-3">
-                <label htmlFor={`items[${index}].name`} className="block text-sm font-medium text-gray-700 mb-1">
-                  항목 이름 <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id={`items[${index}].name`}
-                  name="name"
-                  type="text"
-                  value={item.name}
-                  onChange={(e) => handleItemChange(index, e)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="항목 이름을 입력하세요"
-                />
-              </div>
-              
-              {/* 수량 */}
-              <div className="mb-3">
-                <label htmlFor={`items[${index}].quantity`} className="block text-sm font-medium text-gray-700 mb-1">
-                  수량
-                </label>
-                <input
-                  id={`items[${index}].quantity`}
-                  name="quantity"
-                  type="number"
-                  min="1"
-                  value={item.quantity}
-                  onChange={(e) => handleItemChange(index, e)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              
-              {/* 항목 설명 */}
-              <div>
-                <label htmlFor={`items[${index}].description`} className="block text-sm font-medium text-gray-700 mb-1">
-                  항목 설명
-                </label>
-                <textarea
-                  id={`items[${index}].description`}
-                  name="description"
-                  rows={2}
-                  value={item.description}
-                  onChange={(e) => handleItemChange(index, e)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="항목에 대한 설명을 입력하세요"
-                />
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                서비스명
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={newItem.name}
+                onChange={handleNewItemChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="예: 발톱 관리"
+              />
             </div>
-          ))}
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                서비스 타입
+              </label>
+              <select
+                name="type"
+                value={newItem.type}
+                onChange={handleNewItemChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {itemTypes.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                예상 가격 (원)
+              </label>
+              <input
+                type="number"
+                name="price"
+                value={newItem.price}
+                onChange={handleNewItemChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                min="0"
+                placeholder="예: 10000"
+              />
+            </div>
+          </div>
           
-          {/* 항목 추가 버튼 */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              설명
+            </label>
+            <input
+              type="text"
+              name="description"
+              value={newItem.description}
+              onChange={handleNewItemChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="서비스에 대한 간단한 설명"
+            />
+          </div>
+          
           <button
             type="button"
             onClick={handleAddItem}
-            className="mt-4 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            + 항목 추가
+            항목 추가
           </button>
+          
+          {items.length > 0 && (
+            <div className="overflow-x-auto mt-4">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-gray-700">서비스명</th>
+                    <th className="px-4 py-2 text-left text-gray-700">타입</th>
+                    <th className="px-4 py-2 text-left text-gray-700">설명</th>
+                    <th className="px-4 py-2 text-left text-gray-700">가격</th>
+                    <th className="px-4 py-2 text-left text-gray-700">삭제</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item) => {
+                    const itemType = itemTypes.find(type => type.value === item.type);
+                    
+                    return (
+                      <tr key={item.id} className="border-b">
+                        <td className="px-4 py-2">{item.name}</td>
+                        <td className="px-4 py-2">{itemType?.label || item.type}</td>
+                        <td className="px-4 py-2">{item.description}</td>
+                        <td className="px-4 py-2">{item.price.toLocaleString()}원</td>
+                        <td className="px-4 py-2">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            삭제
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
         
         {/* 제출 버튼 */}
