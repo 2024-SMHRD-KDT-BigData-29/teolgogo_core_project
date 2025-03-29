@@ -5,33 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aa088c94-ef7c-4a6f-9245-7167fa938009" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/config/FileStorageConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/config/FileStorageConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/ChatMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/ChatMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/FileEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/FileEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/QuoteRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/QuoteRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/QuoteResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/QuoteResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/ChatMessageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/ChatMessageRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/FileRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/FileRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/QuoteRequestRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/QuoteRequestRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/ChatService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/FileService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/FileService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/api/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/api/chat.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/chat.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/api/quotation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/quotation.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/chat/[roomId]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/chat/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/chat/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/login/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/oauth2/redirect/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/oauth2/redirect/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/quotes/create/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/quotes/create/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/quotes/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/quotes/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/signup/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/signup/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/auth/SocialLoginButtons.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/auth/SocialLoginButtons.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/context/AuthContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/context/AuthContext.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/_app.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/styles/AddToHomeScreen.module.css" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -162,7 +136,7 @@
       <workItem from="1743052289560" duration="369000" />
       <workItem from="1743139964965" duration="20602000" />
       <workItem from="1743161818244" duration="206000" />
-      <workItem from="1743162038368" duration="11698000" />
+      <workItem from="1743162038368" duration="12300000" />
     </task>
     <servers />
   </component>

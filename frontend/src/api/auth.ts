@@ -80,14 +80,20 @@ export const login = async (emailOrData: string | LoginRequest, password?: strin
   }
 };
 
-// 로그아웃 함수
-export const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('user');
-  
-  // 추가 로그아웃 처리가 필요하면 여기에 구현
-  // 예: 서버에 로그아웃 요청 보내기
+// src/api/auth.ts의 logout 함수 개선
+export const logout = async () => {
+  try {
+    // 백엔드에 로그아웃 요청 보내기
+    await apiClient.post('/api/auth/logout');
+  } catch (error) {
+    console.error('로그아웃 API 호출 실패:', error);
+    // API 호출에 실패해도 로컬 로그아웃은 진행
+  } finally {
+    // 로컬 스토리지에서 인증 관련 데이터 제거
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+  }
 };
 
 // 사용자 정보 가져오기

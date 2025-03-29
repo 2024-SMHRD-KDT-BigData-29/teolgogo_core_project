@@ -9,6 +9,8 @@ import { getUserProfile } from '@/api/auth';
 import { logout } from '@/api/auth';
 import { useRouter } from 'next/navigation';
 
+
+
 interface User {
   id: string;
   name: string;
@@ -40,13 +42,14 @@ export default function Header() {
     checkLogin();
   }, []);
   
-  // 로그아웃 처리
-  const handleLogout = () => {
-    logout();
-    setUser(null);
-    setProfileMenuOpen(false);
-    router.push('/');
-  };
+// 로그아웃 처리 함수 개선
+const handleLogout = async () => {
+  await logout();
+  setUser(null);
+  setProfileMenuOpen(false);
+  // 로그인 페이지로 리디렉션
+  router.push('/login');
+};
   
   return (
     <header className="bg-white shadow-sm">
