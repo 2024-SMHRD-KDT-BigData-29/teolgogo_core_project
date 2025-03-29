@@ -5,8 +5,16 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import * as tf from 'tensorflow';
+// TensorFlow.js 올바른 import 방식 사용
+import * as tf from '@tensorflow/tfjs';
 import { useRouter } from 'next/navigation';
+
+// Window 인터페이스에 cv 속성 추가 (OpenCV.js를 위한 타입 확장)
+declare global {
+  interface Window {
+    cv: any;
+  }
+}
 
 // 반려동물 미용 스타일 타입 정의
 interface GroomingStyle {
@@ -124,6 +132,7 @@ const PetStyleRecommendation: React.FC<PetStyleRecommendationProps> = ({ onSelec
     
     // OpenCV.js 로드
     const loadOpenCV = () => {
+      // 이미 OpenCV가 로드되어 있는지 확인
       if (window.cv) {
         return;
       }

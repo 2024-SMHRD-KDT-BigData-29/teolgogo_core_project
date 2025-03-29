@@ -65,6 +65,7 @@ public class QuoteService {
                 .longitude(requestDTO.getLongitude())
                 .address(requestDTO.getAddress())
                 .preferredDate(requestDTO.getPreferredDate())
+                .photoConsent(requestDTO.getPhotoConsent() != null ? requestDTO.getPhotoConsent() : false) // 사진 이용 동의 처리
                 .build();
 
         // 서비스 아이템 추가

@@ -15,6 +15,7 @@ export interface User extends UserInfo {
   id: number;
   email: string;
   name: string;
+  nickname?: string; // 닉네임 필드 추가
   profileImage?: string;
   role: string;
   provider: 'LOCAL' | 'GOOGLE' | 'KAKAO' | 'NAVER'; // provider 속성 추가

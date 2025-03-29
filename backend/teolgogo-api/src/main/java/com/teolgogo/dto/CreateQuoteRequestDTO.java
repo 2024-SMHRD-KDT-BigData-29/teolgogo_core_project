@@ -6,12 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
-
-// import jakarta.validation.*;
-// import javax.validation.constraints.NotBlank;
-// import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,33 +18,37 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateQuoteRequestDTO {
 
-    @NotNull(message = "반려동물 유형은 필수입니다.")
+    @NotBlank(message = "제목은 필수 항목입니다")
+    private String title;
+
+    @NotNull(message = "반려동물 종류는 필수 항목입니다")
     private QuoteRequest.PetType petType;
 
-    private String petBreed; // 견종 또는 묘종
+    @NotBlank(message = "품종은 필수 항목입니다")
+    private String petBreed;
 
-    private Integer petAge; // 반려동물 나이
+    @NotNull(message = "나이는 필수 항목입니다")
+    @Positive(message = "나이는 양수여야 합니다")
+    private Integer petAge;
 
-    private Double petWeight; // 체중(kg)
+    @NotNull(message = "체중은 필수 항목입니다")
+    @Positive(message = "체중은 양수여야 합니다")
+    private Double petWeight;
 
-    @NotNull(message = "서비스 유형은 필수입니다.")
+    @NotNull(message = "서비스 종류는 필수 항목입니다")
     private QuoteRequest.ServiceType serviceType;
 
-    @NotBlank(message = "요청사항은 필수입니다.")
-    private String description; // 요청사항
+    private String description;
 
-    @NotNull(message = "위도는 필수입니다.")
     private Double latitude;
-
-    @NotNull(message = "경도는 필수입니다.")
     private Double longitude;
-
-    @NotBlank(message = "주소는 필수입니다.")
     private String address;
+    private String addressDetail;
 
-    private LocalDateTime preferredDate; // 선호하는 날짜/시간
+    // 사진 이용 동의 추가
+    @NotNull(message = "반려동물 사진 이용 동의는 필수 항목입니다")
+    private Boolean photoConsent;
 
-    private List<QuoteItemDTO> items; // 요청 아이템 목록
-
-    private List<Long> petPhotoIds;
+    private LocalDateTime preferredDate;
+    private List<QuoteItemDTO> items;
 }

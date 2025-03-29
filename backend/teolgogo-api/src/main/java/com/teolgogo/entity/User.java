@@ -34,6 +34,9 @@ public class User implements UserDetails {
 
     private String password;
 
+    @Column
+    private String nickname; // 닉네임 필드 추가
+
     @Column(unique = true)
     private String phone;
 

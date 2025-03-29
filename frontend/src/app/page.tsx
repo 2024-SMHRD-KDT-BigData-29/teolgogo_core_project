@@ -10,6 +10,8 @@ import { useAuth } from '@/context/AuthContext';
 import EnhancedKakaoMap from '@/components/map/EnhancedKakaoMap';
 import Navbar from '@/components/layout/Navbar';
 import AddToHomeScreen from '@/components/AddToHomeScreen';
+import Footer from '@/components/layout/Footer';
+import BeforeAfterReviewSlider from '@/components/slider/BeforeAfterReviewSlider';
 
 // 서비스 유형 정의
 const serviceTypes = [
@@ -105,6 +107,15 @@ export default function Home() {
     } else {
       // 비로그인 상태면 로그인 페이지로 이동
       router.push(`/login?redirect=/quotation/new&service=${serviceId}`);
+    }
+  };
+
+  // 견적 요청 핸들러 (로그인 상태 확인 추가)
+  const handleQuotationRequest = () => {
+    if (isAuthenticated) {
+      router.push('/quotation/new');
+    } else {
+      router.push('/login?redirect=/quotation/new');
     }
   };
 
@@ -257,6 +268,13 @@ export default function Home() {
               견적 요청하러 가기
             </button>
           </Link>
+        </div>
+      </section>
+
+      {/* 미용 전/후 리뷰 슬라이더 섹션 */}
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4" style={{ maxWidth: '900px' }}>
+          <BeforeAfterReviewSlider />
         </div>
       </section>
       

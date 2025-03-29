@@ -25,6 +25,7 @@ export interface UserInfo {
   id: number;
   name: string;
   email: string;
+  nickname?: string; // 닉네임 필드 추가
   phone?: string;
   profileImage?: string;
   role: string;

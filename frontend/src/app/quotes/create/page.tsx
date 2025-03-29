@@ -210,6 +210,13 @@ export default function CreateQuoteRequestPage() {
       });
     }
   };
+
+   // 사진 동의 변경 핸들러
+   const [photoConsent, setPhotoConsent] = useState<boolean>(false);
+  
+   const handlePhotoConsentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+     setPhotoConsent(e.target.checked);
+   };
   
   // 사진 삭제 핸들러
   const handleRemovePhoto = (index: number) => {

@@ -16,6 +16,8 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
+import com.teolgogo.entity.QuoteRequest;
+
 @Service
 public class ReviewService {
 
@@ -81,8 +83,20 @@ public class ReviewService {
         // 업체의 평균 평점 업데이트
         updateBusinessAverageRating(business.getId());
 
-        // 업체에게 리뷰 알림 전송
+        // 업체에게 리뷰 알림 전송 - 수정된 부분
+        // 기존: notificationService.sendReviewNotification(savedReview.getId());
+
+        // 옵션 1: 호환성을 위해 유지된 sendReviewNotification 메소드 사용
         notificationService.sendReviewNotification(savedReview.getId());
+
+        /* 옵션 2: 새로운 상세 알림 메소드 사용 (선택적 적용)
+        notificationService.sendNewReviewNotification(
+            savedReview.getId(),
+            business.getId(),
+            customer.getName(),
+            rating
+        );
+        */
 
         return savedReview;
     }

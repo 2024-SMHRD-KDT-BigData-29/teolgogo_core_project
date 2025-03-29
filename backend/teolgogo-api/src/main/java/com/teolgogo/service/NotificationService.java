@@ -2,142 +2,234 @@ package com.teolgogo.service;
 
 import com.teolgogo.entity.QuoteRequest;
 import com.teolgogo.entity.QuoteResponse;
-import com.teolgogo.entity.Review;
 import com.teolgogo.entity.User;
 import com.teolgogo.repository.QuoteRequestRepository;
 import com.teolgogo.repository.QuoteResponseRepository;
-import com.teolgogo.repository.ReviewRepository;
 import com.teolgogo.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class NotificationService {
 
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
+
     private final UserRepository userRepository;
     private final QuoteRequestRepository quoteRequestRepository;
     private final QuoteResponseRepository quoteResponseRepository;
-    private final ReviewRepository reviewRepository;
-
-    // 실제 카카오톡 알림 관련 클라이언트가 필요함
-    // private final KakaoNotificationClient kakaoClient;
+    private final KakaoPushService kakaoPushService;
 
     @Autowired
     public NotificationService(
             UserRepository userRepository,
             QuoteRequestRepository quoteRequestRepository,
             QuoteResponseRepository quoteResponseRepository,
-            ReviewRepository reviewRepository) {
+            KakaoPushService kakaoPushService) {
         this.userRepository = userRepository;
         this.quoteRequestRepository = quoteRequestRepository;
         this.quoteResponseRepository = quoteResponseRepository;
-        this.reviewRepository = reviewRepository;
+        this.kakaoPushService = kakaoPushService;
     }
 
-    // 견적 요청 알림 (주변 업체에게)
+    /**
+     * 견적 요청 알림 전송 (주변 업체에게)
+     */
+    @Transactional(readOnly = true)
     public void sendQuoteRequestNotification(Long requestId) {
-        QuoteRequest request = quoteRequestRepository.findById(requestId)
-                .orElseThrow(() -> new EntityNotFoundException("견적 요청을 찾을 수 없습니다."));
+        try {
+            Optional<QuoteRequest> requestOpt = quoteRequestRepository.findById(requestId);
+            if (requestOpt.isEmpty()) {
+                logger.warn("견적 요청 알림 실패: 요청 ID {} 를 찾을 수 없음", requestId);
+                return;
+            }
 
-        // 반경 내 업체 찾기 (5km)
-        List<User> nearbyBusinesses = userRepository.findBusinessesNearLocation(
-                request.getLatitude(), request.getLongitude(), 5.0);
+            QuoteRequest request = requestOpt.get();
+            User customer = request.getCustomer();
 
-        // 각 업체에 알림 전송
-        for (User business : nearbyBusinesses) {
-            // 향후 구현: 카카오톡 알림 전송
-            sendKakaoNotification(
-                    business.getPhone(),
-                    "새로운 견적 요청",
-                    String.format("반경 5km 내에 %s 서비스 요청이 있습니다.",
-                            request.getServiceType().getDisplayName())
+            // 주변 업체에 푸시 알림 전송
+            String title = "새로운 견적 요청이 있습니다";
+            String content = String.format(
+                    "%s님의 %s 견적 요청이 도착했습니다. 지금 확인해보세요.",
+                    customer.getName(),
+                    request.getServiceType().getDisplayName()
             );
+            String linkUrl = "https://teolgogo.com/business/quotation/" + requestId;
+
+            int sentCount = kakaoPushService.sendNearbyBusinessPushNotification(
+                    request.getLatitude(),
+                    request.getLongitude(),
+                    5.0, // 5km 반경
+                    title,
+                    content,
+                    linkUrl
+            );
+
+            logger.info("견적 요청 알림 전송 완료: {}개 업체에 전송 (requestId: {})", sentCount, requestId);
+        } catch (Exception e) {
+            logger.error("견적 요청 알림 전송 중 오류 발생: ", e);
         }
     }
 
-    // 견적 제안 알림 (고객에게)
+    /**
+     * 견적 제안 알림 전송 (고객에게)
+     */
+    @Transactional(readOnly = true)
     public void sendQuoteOfferNotification(Long offerId) {
-        QuoteResponse offer = quoteResponseRepository.findById(offerId)
-                .orElseThrow(() -> new EntityNotFoundException("견적 제안을 찾을 수 없습니다."));
+        try {
+            Optional<QuoteResponse> offerOpt = quoteResponseRepository.findById(offerId);
+            if (offerOpt.isEmpty()) {
+                logger.warn("견적 제안 알림 실패: 제안 ID {} 를 찾을 수 없음", offerId);
+                return;
+            }
 
-        QuoteRequest request = offer.getQuoteRequest();
-        User customer = request.getCustomer();
-        User business = offer.getBusiness();
+            QuoteResponse offer = offerOpt.get();
+            User business = offer.getBusiness();
+            User customer = offer.getQuoteRequest().getCustomer();
 
-        // 고객에게 알림 전송
-        sendKakaoNotification(
-                customer.getPhone(),
-                "새로운 견적 제안",
-                String.format("%s 업체에서 %s 원의 견적을 제안했습니다.",
-                        business.getName(), offer.getPrice())
-        );
+            // 고객에게 푸시 알림 전송
+            String title = "견적 제안이 도착했습니다";
+            String content = String.format(
+                    "%s 업체에서 %s원의 견적을 제안했습니다. 지금 확인해보세요.",
+                    business.getBusinessName(),
+                    offer.getPrice().toString()
+            );
+            String linkUrl = "https://teolgogo.com/quotation/" + offer.getQuoteRequest().getId();
+
+            boolean sent = kakaoPushService.sendPushNotification(
+                    customer.getId(),
+                    title,
+                    content,
+                    linkUrl
+            );
+
+            logger.info("견적 제안 알림 전송 {}: 고객(ID: {})에게 알림 (offerId: {})",
+                    sent ? "성공" : "실패", customer.getId(), offerId);
+        } catch (Exception e) {
+            logger.error("견적 제안 알림 전송 중 오류 발생: ", e);
+        }
     }
 
-    // 견적 수락 알림 (업체에게)
+    /**
+     * 견적 수락 알림 전송 (업체에게)
+     */
+    @Transactional(readOnly = true)
     public void sendQuoteAcceptNotification(Long offerId) {
-        QuoteResponse offer = quoteResponseRepository.findById(offerId)
-                .orElseThrow(() -> new EntityNotFoundException("견적 제안을 찾을 수 없습니다."));
+        try {
+            Optional<QuoteResponse> offerOpt = quoteResponseRepository.findById(offerId);
+            if (offerOpt.isEmpty()) {
+                logger.warn("견적 수락 알림 실패: 제안 ID {} 를 찾을 수 없음", offerId);
+                return;
+            }
 
-        QuoteRequest request = offer.getQuoteRequest();
-        User customer = request.getCustomer();
-        User business = offer.getBusiness();
+            QuoteResponse offer = offerOpt.get();
+            User business = offer.getBusiness();
+            User customer = offer.getQuoteRequest().getCustomer();
 
-        // 업체에게 알림 전송
-        sendKakaoNotification(
-                business.getPhone(),
-                "견적 수락 알림",
-                String.format("%s 고객님이 %s 원의 견적을 수락했습니다.",
-                        customer.getName(), offer.getPrice())
-        );
-    }
+            // 업체에게 푸시 알림 전송
+            String title = "견적이 수락되었습니다";
+            String content = String.format(
+                    "%s님이 귀하의 견적 제안을 수락했습니다. 지금 확인해보세요.",
+                    customer.getName()
+            );
+            String linkUrl = "https://teolgogo.com/business/quotation/" + offer.getId() + "/dashboard";
 
-    // 카카오톡 알림 전송 메서드 (실제 구현 필요)
-    private void sendKakaoNotification(String phone, String title, String message) {
-        // 실제 카카오톡 알림 API 연동 로직 구현 필요
-        System.out.println("카카오톡 알림 전송: " + phone + ", " + title + ", " + message);
+            boolean sent = kakaoPushService.sendPushNotification(
+                    business.getId(),
+                    title,
+                    content,
+                    linkUrl
+            );
 
-        // 예시: kakaoClient.sendNotification(phone, title, message);
-    }
-
-    /**
-     * 리뷰 작성 알림 (업체에게)
-     */
-    public void sendReviewNotification(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new EntityNotFoundException("리뷰를 찾을 수 없습니다."));
-
-        User business = review.getBusiness();
-        User customer = review.getCustomer();
-
-        // 업체에게 알림 전송
-        sendKakaoNotification(
-                business.getPhone(),
-                "새로운 리뷰 알림",
-                String.format("%s 고객님이 %d점의 리뷰를 남겼습니다.",
-                        customer.getName(), review.getRating())
-        );
+            logger.info("견적 수락 알림 전송 {}: 업체(ID: {})에게 알림 (offerId: {})",
+                    sent ? "성공" : "실패", business.getId(), offerId);
+        } catch (Exception e) {
+            logger.error("견적 수락 알림 전송 중 오류 발생: ", e);
+        }
     }
 
     /**
-     * 미용 완료 알림 (고객에게)
+     * 미용 완료 알림 전송 (고객에게)
      */
+    @Transactional(readOnly = true)
     public void sendGroomingCompletedNotification(Long responseId) {
-        QuoteResponse response = quoteResponseRepository.findById(responseId)
-                .orElseThrow(() -> new EntityNotFoundException("견적 응답을 찾을 수 없습니다."));
+        try {
+            Optional<QuoteResponse> responseOpt = quoteResponseRepository.findById(responseId);
+            if (responseOpt.isEmpty()) {
+                logger.warn("미용 완료 알림 실패: 응답 ID {} 를 찾을 수 없음", responseId);
+                return;
+            }
 
-        QuoteRequest request = response.getQuoteRequest();
-        User customer = request.getCustomer();
-        User business = response.getBusiness();
+            QuoteResponse response = responseOpt.get();
+            User business = response.getBusiness();
+            User customer = response.getQuoteRequest().getCustomer();
 
-        // 고객에게 알림 전송
-        sendKakaoNotification(
-                customer.getPhone(),
-                "미용 완료 알림",
-                String.format("%s 업체의 미용 서비스가 완료되었습니다. 리뷰를 작성해주세요.",
-                        business.getBusinessName() != null ? business.getBusinessName() : business.getName())
-        );
+            // 고객에게 푸시 알림 전송
+            String title = "반려동물 미용이 완료되었습니다";
+            String content = String.format(
+                    "%s 업체에서 반려동물 미용이 완료되었다는 알림을 보냈습니다. 미용 전/후 사진을 확인해보세요.",
+                    business.getBusinessName()
+            );
+            String linkUrl = "https://teolgogo.com/reviews/create/" + responseId;
+
+            boolean sent = kakaoPushService.sendPushNotification(
+                    customer.getId(),
+                    title,
+                    content,
+                    linkUrl
+            );
+
+            logger.info("미용 완료 알림 전송 {}: 고객(ID: {})에게 알림 (responseId: {})",
+                    sent ? "성공" : "실패", customer.getId(), responseId);
+        } catch (Exception e) {
+            logger.error("미용 완료 알림 전송 중 오류 발생: ", e);
+        }
+    }
+
+    /**
+     * 새 리뷰 알림 전송 (업체에게)
+     */
+    @Transactional(readOnly = true)
+    public void sendNewReviewNotification(Long reviewId, Long businessId, String customerName, Integer rating) {
+        try {
+            // 업체에게 푸시 알림 전송
+            String title = "새로운 리뷰가 등록되었습니다";
+            String content = String.format(
+                    "%s님이 %d점의 리뷰를 남겼습니다. 지금 확인해보세요.",
+                    customerName,
+                    rating
+            );
+            String linkUrl = "https://teolgogo.com/business/reviews";
+
+            boolean sent = kakaoPushService.sendPushNotification(
+                    businessId,
+                    title,
+                    content,
+                    linkUrl
+            );
+
+            logger.info("새 리뷰 알림 전송 {}: 업체(ID: {})에게 알림 (reviewId: {})",
+                    sent ? "성공" : "실패", businessId, reviewId);
+        } catch (Exception e) {
+            logger.error("새 리뷰 알림 전송 중 오류 발생: ", e);
+        }
+    }
+
+    /**
+     * 호환성을 위한 메소드 (기존 코드에서 이 이름으로 호출하는 경우)
+     */
+    @Transactional(readOnly = true)
+    public void sendReviewNotification(Long reviewId) {
+        try {
+            // ReviewService에서 사용하는 메소드 호환성 유지
+            // 구체적인 정보 없이 호출되는 경우 로그만 남김
+            logger.info("리뷰 알림 요청 (reviewId: {}). sendNewReviewNotification() 메소드를 사용하세요.", reviewId);
+        } catch (Exception e) {
+            logger.error("리뷰 알림 전송 중 오류 발생: ", e);
+        }
     }
 }

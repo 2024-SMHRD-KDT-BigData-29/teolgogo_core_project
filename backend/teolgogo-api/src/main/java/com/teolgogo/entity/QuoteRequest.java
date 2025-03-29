@@ -43,6 +43,11 @@ public class QuoteRequest {
     private Double longitude; // 경도
     private String address; // 주소
 
+    // 반려동물 사진 이용 동의 추가
+    private boolean photoConsent; // 사진 이용 동의 여부
+
+
+
     @Enumerated(EnumType.STRING)
     private RequestStatus status; // PENDING, OFFERED, ACCEPTED, COMPLETED, CANCELLED
 
