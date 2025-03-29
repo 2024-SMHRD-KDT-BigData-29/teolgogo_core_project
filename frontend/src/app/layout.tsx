@@ -1,10 +1,11 @@
 import { AuthProvider } from '@/context/AuthContext';
+import { ThemeProvider } from '@/context/ThemeContext';
+import { MainProvider } from '@/context/MainProvider';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import Script from 'next/script';
+import Footer from '@/components/layout/Footer';
 
 // Inter 폰트 설정 (variable 속성 추가)
 const inter = Inter({ 
@@ -23,6 +24,23 @@ export const metadata: Metadata = {
     title: '털고고',
   },
   viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
+  // 오픈 그래프 태그 추가 (SEO 개선)
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    url: 'https://teolgogo.com',
+    siteName: '털고고',
+    title: '털고고 | 반려동물 미용 서비스 견적 비교 플랫폼',
+    description: '내 주변 반려동물 미용 서비스 견적을 간편하게 받아보고 비교해보세요.',
+    images: [
+      {
+        url: '/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: '털고고 - 반려동물 미용 서비스 견적 비교 플랫폼',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -41,32 +59,50 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="털고고" />
+        
+        {/* 초기 테마 적용을 위한 인라인 스크립트 */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.classList.toggle('dark', theme === 'dark');
+              } catch (e) {}
+            })();
+          `
+        }} />
       </head>
-      <body className={`flex flex-col min-h-screen bg-gray-50 ${inter.className}`}>
-  <div className="w-full max-w-screen-sm mx-auto">
-    <AuthProvider>
-      {/* children에 Navbar가 포함된 페이지도 있으므로 Header는 조건부로 렌더링할 수 있음 */}
-      {children}
-    </AuthProvider>
-  </div>
-  
-  {/* 서비스 워커 등록 스크립트 */}
-  <Script id="register-sw" strategy="afterInteractive">
-    {`
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then(function(registration) {
-              console.log('서비스 워커 등록 성공:', registration.scope);
-            })
-            .catch(function(err) {
-              console.log('서비스 워커 등록 실패:', err);
-            });
-        });
-      }
-    `}
-  </Script>
-</body>
+      <body className={`flex flex-col min-h-screen ${inter.className}`}>
+        <div className="w-full max-w-screen-sm mx-auto flex-grow">
+          <AuthProvider>
+            <ThemeProvider>
+              <MainProvider>
+                {children}
+              </MainProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </div>
+        
+        {/* 푸터 */}
+        <Footer />
+        
+        {/* 서비스 워커 등록 스크립트 */}
+        <Script id="register-sw" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js')
+                  .then(function(registration) {
+                    console.log('서비스 워커 등록 성공:', registration.scope);
+                  })
+                  .catch(function(err) {
+                    console.log('서비스 워커 등록 실패:', err);
+                  });
+              });
+            }
+          `}
+        </Script>
+      </body>
     </html>
   );
 }

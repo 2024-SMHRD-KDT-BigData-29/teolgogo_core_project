@@ -1,10 +1,3 @@
-// src/components/layout/Navbar.tsx
-// 로그인 상태를 표시하고 네비게이션을 제공하는 컴포넌트
-// 이 컴포넌트는 로그인 상태에 따라 다른 메뉴를 보여주는 
-// 네비게이션 바를 제공합니다. 
-// 데스크톱과 모바일 화면 모두에서 적절하게 동작하도록 반응형으로 
-// 설계되어 있습니다.
-
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
@@ -12,11 +5,17 @@ import { logout } from '@/api/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import ThemeToggle from '../common/ThemeToggle';
 
-const Navbar = () => {
+interface NavbarProps {
+  scrollToSection?: (sectionId: string) => void;
+}
+
+const Navbar = ({ scrollToSection }: NavbarProps) => {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   // 로그아웃 처리
   const handleLogout = () => {
@@ -26,14 +25,34 @@ const Navbar = () => {
     window.location.reload();
   };
 
+  // 메뉴 항목을 클릭하여 특정 섹션으로 스크롤
+  const handleSectionClick = (sectionId: string) => {
+    setIsMenuOpen(false);
+    if (scrollToSection) {
+      scrollToSection(sectionId);
+    } else {
+      // 홈 페이지가 아닌 경우 홈 페이지로 이동 후 해당 섹션으로 스크롤
+      router.push(`/?section=${sectionId}`);
+    }
+  };
+
+  // 견적 요청하기 버튼 클릭
+  const handleQuotationRequest = () => {
+    if (isAuthenticated) {
+      router.push('/quotation/new');
+    } else {
+      router.push('/login?redirect=/quotation/new');
+    }
+  };
+
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white dark:bg-gray-900 shadow-md transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
             {/* 로고 및 홈 링크 */}
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-blue-600">
+              <Link href="/" className="text-xl font-bold text-primary-600 dark:text-primary-400">
                 텔고고
               </Link>
             </div>
@@ -42,57 +61,82 @@ const Navbar = () => {
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link
                 href="/"
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700"
               >
                 홈
               </Link>
-              <Link
-                href="/map"
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              <button
+                onClick={() => handleSectionClick('map')}
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700"
               >
-                지도
-              </Link>
+                내 주변 미용업체 찾아보기
+              </button>
               <Link
                 href="/recommendation"
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700"
               >
-                추천
+                펫 미용 스타일 AI 추천 받아보세요!
               </Link>
+              <button
+                onClick={() => handleSectionClick('reviews')}
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700"
+              >
+                리뷰 보기
+              </button>
             </div>
           </div>
           
-          {/* 사용자 메뉴 */}
+          {/* 사용자 메뉴와 테마 전환 */}
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
+            {/* 테마 토글 버튼 */}
+            <ThemeToggle className="mr-2" />
+            
             {isAuthenticated ? (
               <div className="relative ml-3">
                 <div>
                   <button
                     type="button"
                     className="flex text-sm rounded-full focus:outline-none"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                   >
-                    <span className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200">
+                    <span className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700">
                       {user?.name || '사용자'}
                     </span>
                   </button>
                 </div>
                 
                 {/* 드롭다운 메뉴 */}
-                {isMenuOpen && (
-                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                {profileMenuOpen && (
+                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                     <Link
                       href="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setIsMenuOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => setProfileMenuOpen(false)}
                     >
                       프로필
                     </Link>
+                    <Link
+                      href="/dashboard"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => setProfileMenuOpen(false)}
+                    >
+                      {user?.role === 'BUSINESS' ? '업체 대시보드' : '내 견적 관리'}
+                    </Link>
+                    {user?.role === 'CUSTOMER' && (
+                      <Link
+                        href="/pet-profiles"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setProfileMenuOpen(false)}
+                      >
+                        반려동물 프로필
+                      </Link>
+                    )}
                     <button
                       onClick={() => {
-                        setIsMenuOpen(false);
+                        setProfileMenuOpen(false);
                         handleLogout();
                       }}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       로그아웃
                     </button>
@@ -103,13 +147,13 @@ const Navbar = () => {
               <div className="flex space-x-4">
                 <Link
                   href="/login"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600"
                 >
                   로그인
                 </Link>
                 <Link
                   href="/signup"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-gray-50 hover:bg-gray-100"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-600 dark:text-primary-400 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   회원가입
                 </Link>
@@ -119,9 +163,12 @@ const Navbar = () => {
           
           {/* 모바일 메뉴 버튼 */}
           <div className="flex items-center sm:hidden">
+            {/* 모바일에서도 테마 토글 표시 */}
+            <ThemeToggle className="mr-2" />
+            
             <button
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               <span className="sr-only">메뉴 열기</span>
@@ -151,69 +198,13 @@ const Navbar = () => {
           <div className="pt-2 pb-3 space-y-1">
             <Link
               href="/"
-              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
+              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
               onClick={() => setIsMenuOpen(false)}
             >
               홈
             </Link>
-            <Link
-              href="/map"
-              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
-              onClick={() => setIsMenuOpen(false)}
+            <button
+              onClick={() => handleSectionClick('map')}
+              className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
             >
-              지도
-            </Link>
-            <Link
-              href="/recommendation"
-              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              추천
-            </Link>
-            
-            {/* 로그인/로그아웃 관련 링크 */}
-            {isAuthenticated ? (
-              <>
-                <Link
-                  href="/profile"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  프로필
-                </Link>
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    handleLogout();
-                  }}
-                  className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
-                >
-                  로그아웃
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  로그인
-                </Link>
-                <Link
-                  href="/signup"
-                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  회원가입
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-    </nav>
-  );
-};
-
-export default Navbar;
+              내

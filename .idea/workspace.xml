@@ -5,21 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aa088c94-ef7c-4a6f-9245-7167fa938009" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/dto/CreateQuoteRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/dto/CreateQuoteRequestDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/QuoteRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/QuoteRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/NotificationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/QuoteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/QuoteService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/ReviewService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/ReviewService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/api/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/oauth2/redirect/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/oauth2/redirect/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/login/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/quotes/create/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/quotes/create/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/app/signup/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/signup/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ai/PetStyleRecommendation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ai/PetStyleRecommendation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/context/AuthContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/context/AuthContext.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -150,7 +139,7 @@
       <workItem from="1743052289560" duration="369000" />
       <workItem from="1743139964965" duration="20602000" />
       <workItem from="1743161818244" duration="206000" />
-      <workItem from="1743162038368" duration="17046000" />
+      <workItem from="1743162038368" duration="18266000" />
     </task>
     <servers />
   </component>

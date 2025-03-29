@@ -1,28 +1,85 @@
 @import "tailwindcss";
 
 :root {
+  /* 라이트 모드 변수 */
   --background: #ffffff;
   --foreground: #171717;
+  --card-background: #ffffff;
+  --border-color: #e5e7eb;
+  
+  /* 메인 컬러 (파란색 계열) */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  
+  /* 보조 컬러 (보라색 계열) */
+  --color-secondary-50: #f5f3ff;
+  --color-secondary-100: #ede9fe;
+  --color-secondary-200: #ddd6fe;
+  --color-secondary-300: #c4b5fd;
+  --color-secondary-400: #a78bfa;
+  --color-secondary-500: #8b5cf6;
+  --color-secondary-600: #7c3aed;
+  --color-secondary-700: #6d28d9;
+  --color-secondary-800: #5b21b6;
+  --color-secondary-900: #4c1d95;
 }
 
-/* stylelint-disable */
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* 다크 모드 변수 */
+.dark {
+  --background: #121212;
+  --foreground: #e5e5e5;
+  --card-background: #1f1f1f;
+  --border-color: #2e2e2e;
+  
+  /* 다크 모드에서의 메인 컬러 (좀 더 밝은 파란색) */
+  --color-primary-50: #1a365d;
+  --color-primary-100: #1e429f;
+  --color-primary-200: #1e4fd8;
+  --color-primary-300: #3b82f6;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #93c5fd;
+  --color-primary-600: #bfdbfe;
+  --color-primary-700: #dbeafe;
+  --color-primary-800: #eff6ff;
+  --color-primary-900: #f8fafc;
+  
+  /* 다크 모드에서의 보조 컬러 (좀 더 밝은 보라색) */
+  --color-secondary-50: #2e1065;
+  --color-secondary-100: #4c1d95;
+  --color-secondary-200: #5b21b6;
+  --color-secondary-300: #6d28d9;
+  --color-secondary-400: #7c3aed;
+  --color-secondary-500: #8b5cf6;
+  --color-secondary-600: #a78bfa;
+  --color-secondary-700: #c4b5fd;
+  --color-secondary-800: #ddd6fe;
+  --color-secondary-900: #f5f3ff;
 }
-/* stylelint-enable */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* 전체 배경 및 텍스트 색상 적용 */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 테마 변경 시 애니메이션 효과를 위한 설정 */
+*, *::before, *::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease;
+}
+
+/* 카드 스타일 */
+.card {
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
 }
