@@ -290,12 +290,12 @@ export default function PetProfileDetailPage() {
                             {history.price.toLocaleString()}원
                           </span>
                           {history.quoteResponseId && (
-                            <Link href={`/quotation/${history.quoteResponseId}`}>
-                              <button className="text-primary-600 dark:text-primary-400 text-sm hover:underline">
+                            <Link href={`/quotation/${history.quoteResponseId?.toString() || ''}`}>
+                                <button className="text-primary-600 dark:text-primary-400 text-sm hover:underline">
                                 상세 보기
-                              </button>
+                                </button>
                             </Link>
-                          )}
+                            )}
                         </div>
                       </div>
                     ))}
@@ -305,17 +305,17 @@ export default function PetProfileDetailPage() {
 
               {/* 버튼 */}
               <div className="flex space-x-3">
-                <Link href={`/pet-profiles/edit/${petProfile.id}`} className="flex-1">
-                  <button className="w-full py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 transition">
+                <Link href={`/pet-profiles/edit/${petProfile?.id?.toString() || params.id}`} className="flex-1">
+                    <button className="w-full py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 transition">
                     프로필 수정
-                  </button>
+                    </button>
                 </Link>
                 <Link href="/quotation/new" className="flex-1">
-                  <button className="w-full py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 transition">
+                    <button className="w-full py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 transition">
                     견적 요청하기
-                  </button>
+                    </button>
                 </Link>
-              </div>
+                </div>
             </div>
           ) : !error && !isLoading && (
             <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
@@ -338,6 +338,8 @@ export default function PetProfileDetailPage() {
             </div>
           )}
         </div>
+        <Footer />
       </div>
     </ErrorBoundary>
   );
+}

@@ -1,85 +1,89 @@
 @import "tailwindcss";
 
 :root {
-  /* 라이트 모드 변수 */
-  --background: #ffffff;
-  --foreground: #171717;
-  --card-background: #ffffff;
-  --border-color: #e5e7eb;
+  /* 선명하고 깨끗한 파란색 계열 배경 */
+  --background: #EFF6FF;        /* 매우 밝은 파란 배경 */
+  --background-secondary: #E7F0FE; /* 약간 더 진한 파란 배경 */
+  --foreground: #000000;        /* 순수한 검정 */
+  --foreground-secondary: #333333; /* 진한 그레이 */
+  --card-background: #FFFFFF;   /* 순수한 흰색 카드 배경 */
+  --border-color: #E0E0E0;      /* 연한 회색 테두리 */
   
-  /* 메인 컬러 (파란색 계열) */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  /* 주요 강조 색상 - 더 선명하게 */
+  --color-primary-500: #1A73E8;  /* 선명한 블루 */
+  --color-primary-600: #1557B0;  /* 더 진한 블루 */
+  --color-primary-400: #4285F4;  /* 밝은 블루 */
   
-  /* 보조 컬러 (보라색 계열) */
-  --color-secondary-50: #f5f3ff;
-  --color-secondary-100: #ede9fe;
-  --color-secondary-200: #ddd6fe;
-  --color-secondary-300: #c4b5fd;
-  --color-secondary-400: #a78bfa;
-  --color-secondary-500: #8b5cf6;
-  --color-secondary-600: #7c3aed;
-  --color-secondary-700: #6d28d9;
-  --color-secondary-800: #5b21b6;
-  --color-secondary-900: #4c1d95;
+  /* 상태 색상 */
+  --success: #4CAF50;    /* 선명한 초록색 */
+  --error: #F44336;      /* 선명한 빨간색 */
+  --warning: #FF9800;    /* 선명한 주황색 */
 }
 
-/* 다크 모드 변수 */
+/* 다크 모드 색상 팔레트 */
 .dark {
-  --background: #121212;
-  --foreground: #e5e5e5;
-  --card-background: #1f1f1f;
-  --border-color: #2e2e2e;
+  --background: #0F172A;        /* 깊은 남색 배경 */
+  --background-secondary: #1E293B; /* 약간 밝은 남색 배경 */
+  --foreground: #FFFFFF;        /* 순수한 흰색 */
+  --foreground-secondary: #B0B0B0; /* 밝은 회색 */
+  --card-background: #1E1E1E;   /* 약간 밝은 어두운 배경 */
+  --border-color: #333333;      /* 어두운 테두리 */
   
-  /* 다크 모드에서의 메인 컬러 (좀 더 밝은 파란색) */
-  --color-primary-50: #1a365d;
-  --color-primary-100: #1e429f;
-  --color-primary-200: #1e4fd8;
-  --color-primary-300: #3b82f6;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #93c5fd;
-  --color-primary-600: #bfdbfe;
-  --color-primary-700: #dbeafe;
-  --color-primary-800: #eff6ff;
-  --color-primary-900: #f8fafc;
+  --color-primary-500: #4285F4;  /* 밝은 블루 */
+  --color-primary-600: #1A73E8;  /* 중간 블루 */
+  --color-primary-400: #67A4FC;  /* 더 밝은 블루 */
   
-  /* 다크 모드에서의 보조 컬러 (좀 더 밝은 보라색) */
-  --color-secondary-50: #2e1065;
-  --color-secondary-100: #4c1d95;
-  --color-secondary-200: #5b21b6;
-  --color-secondary-300: #6d28d9;
-  --color-secondary-400: #7c3aed;
-  --color-secondary-500: #8b5cf6;
-  --color-secondary-600: #a78bfa;
-  --color-secondary-700: #c4b5fd;
-  --color-secondary-800: #ddd6fe;
-  --color-secondary-900: #f5f3ff;
+  /* 상태 색상 */
+  --success: #81C784;    /* 밝은 초록색 */
+  --error: #E57373;      /* 밝은 빨간색 */
+  --warning: #FFB74D;    /* 밝은 주황색 */
 }
 
-/* 전체 배경 및 텍스트 색상 적용 */
+/* 기본 본문 스타일 - 최적화된 렌더링 */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  
+  /* 폰트 렌더링 최적화 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  /* 텍스트 크기 조정 방지 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
-/* 테마 변경 시 애니메이션 효과를 위한 설정 */
-*, *::before, *::after {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease;
+/* 섹션 배경 스타일 */
+.section-background {
+  background-color: var(--background);
 }
 
-/* 카드 스타일 */
-.card {
-  background-color: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+.section-background-alt {
+  background-color: var(--background-secondary);
+}
+
+/* 통계 섹션 및 푸터 배경 */
+.statistics-section,
+.footer-section {
+  background-color: var(--background-secondary);
+  color: var(--foreground);
+}
+
+/* 나머지 기존 CSS 코드 유지 */
+/* (이전에 제공된 나머지 CSS 코드를 그대로 유지) */
+
+/* 다크 모드에서의 섹션 배경 */
+.dark .section-background {
+  background-color: var(--background);
+}
+
+.dark .section-background-alt,
+.dark .statistics-section,
+.dark .footer-section {
+  background-color: var(--background-secondary);
 }

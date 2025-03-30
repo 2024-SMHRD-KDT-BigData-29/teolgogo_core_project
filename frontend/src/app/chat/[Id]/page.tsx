@@ -1,6 +1,4 @@
 // app/chat/[roomId]/page.tsx
-// 채팅 페이지 컴포넌트
-
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
@@ -14,14 +12,14 @@ function isValidChatMessage(message: any): message is ChatMessage {
   return (
     message && 
     (typeof message.id === 'string' || typeof message.id === 'number') &&
-    (typeof message.senderId === 'string') &&
+    (typeof message.senderId === 'string' || typeof message.senderId === 'number') &&
     (typeof message.content === 'string')
   );
 }
 
 // 사용자 타입 정의
 interface User {
-  id: string;
+  id: string | number;
   name: string;
   role: 'CUSTOMER' | 'BUSINESS';
 }
@@ -95,7 +93,7 @@ export default function ChatRoomPage() {
   // 채팅 훅 연결
   const { messages: liveMessages, connected, error: socketError, sendMessage, markAsRead } = useChat(
     roomId as string,
-    user?.id || ''
+    user?.id?.toString() || ''
   );
   
   // 스크롤 이벤트 리스너
@@ -131,7 +129,8 @@ export default function ChatRoomPage() {
     const unreadMessageIds = allMessages
       .filter(msg => {
         // 두 속성 중 하나라도 false면 읽지 않은 메시지
-        const isUnread = msg.isRead === false || msg.read === false;
+        // isRead와 read 속성 모두 확인 (API 호환성을 위함)
+        const isUnread = (msg.isRead === false || (msg as any).read === false);
         return isUnread && msg.senderId !== user.id;
       })
       .map(msg => msg.id);
@@ -194,7 +193,7 @@ export default function ChatRoomPage() {
     
     allMessages.forEach(message => {
       // timestamp와 sentAt 속성 모두 처리 (API 호환성)
-      const timestamp = message.timestamp || message.sentAt || '';
+      const timestamp = message.timestamp || (message as any).sentAt || '';
       const date = timestamp ? getMessageDate(timestamp) : '알 수 없음';
       if (!groups[date]) {
         groups[date] = [];
@@ -271,10 +270,10 @@ export default function ChatRoomPage() {
               {messagesInDay.map((message, index) => {
                 const isMe = message.senderId === user?.id;
                 // timestamp와 sentAt 속성 모두 처리 (API 호환성)
-                const timestamp = message.timestamp || message.sentAt || '';
+                const timestamp = message.timestamp || (message as any).sentAt || '';
                 // isRead와 read 속성 모두 처리 (API 호환성)
                 const isRead = message.isRead !== undefined ? message.isRead : 
-                              (message.read !== undefined ? message.read : false);
+                              (message as any).read !== undefined ? (message as any).read : false;
                 
                 return (
                   <div

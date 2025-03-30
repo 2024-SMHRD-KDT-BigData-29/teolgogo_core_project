@@ -6,6 +6,8 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import Script from 'next/script';
 import Footer from '@/components/layout/Footer';
+import './globals.css'; // 반드시 있어야 함
+
 
 // Inter 폰트 설정 (variable 속성 추가)
 const inter = Inter({ 
@@ -73,7 +75,7 @@ export default function RootLayout({
         }} />
       </head>
       <body className={`flex flex-col min-h-screen ${inter.className}`}>
-        <div className="w-full max-w-screen-sm mx-auto flex-grow">
+      <div className="w-full max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full mx-auto flex-grow">
           <AuthProvider>
             <ThemeProvider>
               <MainProvider>

@@ -34,11 +34,19 @@ export const handleApiError = (error: unknown): ApiError => {
         
         // 백엔드에서 message 속성으로 에러 메시지를 담아 보내는 경우
         if ('message' in data && typeof data.message === 'string') {
+          // 타입 단언으로 에러 처리
+          const apiData = data as {
+            message: string;
+            code?: string;
+            field?: string;
+            details?: string;
+          };
+          
           return {
-            message: data.message,
-            code: data.code as string | undefined,
-            field: data.field as string | undefined,
-            details: data.details as string | undefined,
+            message: apiData.message,
+            code: apiData.code,
+            field: apiData.field,
+            details: apiData.details,
             status
           };
         }

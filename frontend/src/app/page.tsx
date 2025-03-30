@@ -11,6 +11,8 @@ import Navbar from '@/components/layout/Navbar';
 import AddToHomeScreen from '@/components/AddToHomeScreen';
 import Footer from '@/components/layout/Footer';
 import BeforeAfterReviewSlider from '@/components/slider/BeforeAfterReviewSlider';
+import './globals.css'; // 반드시 있어야 함
+
 
 // 서비스 유형 정의
 const serviceTypes = [
@@ -45,6 +47,9 @@ const serviceSteps = [
 ];
 
 // 주요 서비스 소개 정의
+
+// 주요 서비스 소개 정의 (타입 안전성 향상)
+
 const mainFeatures = [
   {
     title: '지도 기능',
@@ -184,7 +189,7 @@ export default function Home() {
         </div>
         
         {/* 히어로 콘텐츠 */}
-        <div className="container mx-auto px-4 z-10 relative" style={{ maxWidth: '500px' }}>
+        <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
           <div className="w-full">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">
               내 주변 반려동물 미용 서비스, 간편하게 견적받고 예약하세요
@@ -236,24 +241,24 @@ export default function Home() {
       
       {/* 주요 서비스 소개 섹션 */}
       <section className="py-12 bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-4" style={{ maxWidth: '500px' }}>
+        <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-800 dark:text-white">주요 서비스 소개</h2>
           
           <div className="grid grid-cols-1 gap-4">
-            {mainFeatures.map((feature, index) => (
-              feature.isClickable ? (
-                <Link 
-                  key={index} 
-                  href={feature.link}
-                  className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl p-5 shadow-sm transition flex items-center"
-                >
-                  <div className="text-3xl mr-4">{feature.icon}</div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{feature.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">{feature.description}</p>
-                  </div>
-                </Link>
-              ) : (
+              {mainFeatures.map((feature, index) => (
+                feature.isClickable ? (
+                  <Link 
+                    key={index} 
+                    href={feature.link || '#'} // 기본값 '#' 제공
+                    className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl p-5 shadow-sm transition flex items-center"
+                  >
+                    <div className="text-3xl mr-4">{feature.icon}</div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{feature.title}</h3>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm">{feature.description}</p>
+                    </div>
+                  </Link>
+                ) : (
                 <div 
                   key={index}
                   className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl p-5 shadow-sm transition flex items-center cursor-pointer"
@@ -273,7 +278,7 @@ export default function Home() {
       
       {/* 서비스 유형 선택 섹션 */}
       <section className="py-12 bg-gray-50 dark:bg-gray-800">
-        <div className="container mx-auto px-4" style={{ maxWidth: '500px' }}>
+      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
           <h2 className="text-2xl font-bold text-center mb-4 text-gray-800 dark:text-white">반려동물을 위한 어떤 미용 서비스를 찾으시나요?</h2>
           <p className="text-gray-600 dark:text-gray-300 text-center mx-auto mb-8">
             원하시는 서비스 유형을 선택하시면 소중한 반려동물에게 맞는 맞춤형 견적을 받아보실 수 있습니다.
@@ -303,7 +308,7 @@ export default function Home() {
       
       {/* 지도 미리보기 섹션 */}
       <section className="py-12 bg-white dark:bg-gray-900" ref={mapRef}>
-        <div className="container mx-auto px-4" style={{ maxWidth: '500px' }}>
+      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
           <h2 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">내 주변 반려동물 미용업체</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6 text-center">
             현재 위치 기준으로 주변의 펫 미용 전문샵들을 살펴보세요.
@@ -339,7 +344,7 @@ export default function Home() {
       
       {/* 서비스 이용 단계 섹션 */}
       <section className="py-12 bg-gray-50 dark:bg-gray-800">
-        <div className="container mx-auto px-4" style={{ maxWidth: '500px' }}>
+      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-800 dark:text-white">서비스 이용 방법</h2>
           
           <div className="space-y-4">
@@ -362,7 +367,7 @@ export default function Home() {
       
       {/* 사용자 유형별 섹션 */}
       <section className="py-12 bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-4" style={{ maxWidth: '500px' }}>
+      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
           <div className="space-y-4">
             {/* 반려동물 보호자용 */}
             <div className="bg-primary-50 dark:bg-primary-900 rounded-xl p-6 text-center">
@@ -396,7 +401,7 @@ export default function Home() {
       
       {/* 통계 섹션 */}
       <section className="py-10 bg-gray-800 dark:bg-gray-900 text-white">
-        <div className="container mx-auto px-4" style={{ maxWidth: '500px' }}>
+      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
           <div className="grid grid-cols-2 gap-4 text-center">
             <div className="bg-gray-700 dark:bg-gray-800 p-4 rounded-lg">
               <p className="text-3xl font-bold mb-1">1,000+</p>
@@ -420,7 +425,7 @@ export default function Home() {
       
       {/* CTA 섹션 (입점 업체 둘러보기로 변경) */}
       <section className="py-10 bg-primary-600 dark:bg-primary-700 text-white">
-        <div className="container mx-auto px-4 text-center" style={{ maxWidth: '500px' }}>
+      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
           <h2 className="text-2xl font-bold mb-4">다양한 미용 전문가들을 만나보세요</h2>
           <p className="text-lg mb-6 mx-auto">
             털고고와 함께하는 수준 높은 미용 전문가들의 포트폴리오를 확인해보세요.

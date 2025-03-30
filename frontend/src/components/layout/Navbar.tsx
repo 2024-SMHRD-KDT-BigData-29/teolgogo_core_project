@@ -1,17 +1,18 @@
+// components/layout/Navbar.tsx
 'use client';
 
-import { useAuth } from '@/context/AuthContext';
-import { logout } from '@/api/auth';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { logout } from '@/api/auth';
 import ThemeToggle from '../common/ThemeToggle';
 
 interface NavbarProps {
   scrollToSection?: (sectionId: string) => void;
 }
 
-const Navbar = ({ scrollToSection }: NavbarProps) => {
+export default function Navbar({ scrollToSection }: NavbarProps) {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -207,4 +208,85 @@ const Navbar = ({ scrollToSection }: NavbarProps) => {
               onClick={() => handleSectionClick('map')}
               className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
             >
-              내
+              내 주변 미용업체 찾아보기
+            </button>
+            <Link
+              href="/recommendation"
+              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              펫 미용 스타일 AI 추천
+            </Link>
+            <button
+              onClick={() => handleSectionClick('reviews')}
+              className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+            >
+              리뷰 보기
+            </button>
+          </div>
+          
+          {/* 모바일 로그인 메뉴 */}
+          <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
+            {isAuthenticated ? (
+              <div className="space-y-1">
+                <div className="px-4 py-2">
+                  <div className="text-base font-medium text-gray-800 dark:text-white">{user?.name || '사용자'}</div>
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">{user?.email}</div>
+                </div>
+                <Link
+                  href="/profile"
+                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  프로필
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {user?.role === 'BUSINESS' ? '업체 대시보드' : '내 견적 관리'}
+                </Link>
+                {user?.role === 'CUSTOMER' && (
+                  <Link
+                    href="/pet-profiles"
+                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    반려동물 프로필
+                  </Link>
+                )}
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                >
+                  로그아웃
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-1 px-4">
+                <Link
+                  href="/login"
+                  className="block py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  로그인
+                </Link>
+                <Link
+                  href="/signup"
+                  className="block py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  회원가입
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}

@@ -1,20 +1,12 @@
 // hooks/useChat.ts
-// 채팅 소켓 연결을 위한 훅
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import * as StompJs from '@stomp/stompjs';
 import { ChatMessage } from '@/types/chat'; // 중앙 집중식 타입 사용
 
-interface ChatMessage {
-  id: string;
-  roomId: string;
-  senderId: string;
-  content: string;
-  timestamp: string;
-  isRead: boolean;
-}
+// 인터페이스 중복 선언 제거
+// ChatMessage 인터페이스는 /types/chat.ts에서 가져옴
 
 export default function useChat(roomId: string, userId: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
