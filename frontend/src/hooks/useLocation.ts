@@ -1,3 +1,6 @@
+// hooks/useLocation.ts
+'use client';
+
 import { useState } from 'react';
 
 interface Location {
@@ -57,12 +60,12 @@ export const useLocation = () => {
     });
   };
 
-  // 카카오 지도 API를 사용하여 좌표로부터 주소 정보 가져오기
+  // 좌표로부터 주소 정보 가져오기
   const getAddressFromCoords = async (latitude: number, longitude: number): Promise<string | null> => {
     try {
-      // Kakao Maps API 키가 있는지 확인
-      if (!window.kakao || !window.kakao.maps) {
-        console.error('Kakao Maps API가 로드되지 않았습니다.');
+      // Kakao Maps SDK가 로드되어 있는지 확인
+      if (!window.kakao || !window.kakao.maps || !window.kakao.maps.services) {
+        console.error('Kakao Maps API가 로드되지 않았거나 services 라이브러리가 없습니다.');
         return null;
       }
 
@@ -70,11 +73,8 @@ export const useLocation = () => {
         // 좌표 -> 주소 변환 객체 생성
         const geocoder = new window.kakao.maps.services.Geocoder();
         
-        // 좌표를 카카오맵 좌표 객체로 변환
-        const coords = new window.kakao.maps.LatLng(latitude, longitude);
-        
         // 좌표로 주소 정보 요청
-        geocoder.coord2Address(coords.getLng(), coords.getLat(), (result: any, status: any) => {
+        geocoder.coord2Address(longitude, latitude, (result: any, status: any) => {
           if (status === window.kakao.maps.services.Status.OK) {
             if (result[0]) {
               // 도로명 주소 우선, 없으면 지번 주소 사용
@@ -105,3 +105,5 @@ export const useLocation = () => {
     error
   };
 };
+
+export default useLocation;

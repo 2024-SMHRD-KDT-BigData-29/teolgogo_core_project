@@ -152,12 +152,19 @@ export default function CreateQuoteRequestPage() {
   
   // 위치 선택 핸들러
   const handleLocationSelect = (lat: number, lng: number, address: string) => {
-    setFormData(prev => ({
-      ...prev,
-      latitude: lat,
-      longitude: lng,
-      address: address
-    }));
+    console.log('위치 선택됨:', lat, lng, address);
+    
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        latitude: lat,
+        longitude: lng,
+        address: address
+      };
+      console.log('새 폼 데이터:', newData);
+      return newData;
+    });
+    
     setLocationSelected(true);
     
     // 위치 오류 제거
@@ -544,9 +551,16 @@ export default function CreateQuoteRequestPage() {
           
           {/* 카카오 맵 */}
           <EnhancedKakaoMap
+            width="100%"
             height="400px"
+            initialLatitude={37.5665}
+            initialLongitude={126.9780}
+            level={3}
             selectable={true}
-            onLocationSelect={handleLocationSelect}
+            onLocationSelect={(lat, lng, address) => {
+              console.log('선택된 위치:', lat, lng, address);
+              // 여기서 폼 데이터 업데이트 등의 작업 수행
+            }}
           />
           
           {errors.location && (

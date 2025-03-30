@@ -1,517 +1,608 @@
-// frontend/src/components/ai/PetStyleRecommendation.tsx
-// TensorFlow.js와 OpenCV.js를 활용하여 반려동물 사진을 분석하고
-// 적합한 미용 스타일을 추천하는 AI 컴포넌트
-
+// components/ai/PetStyleRecommendation.tsx
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-// TensorFlow.js 올바른 import 방식 사용
-import * as tf from '@tensorflow/tfjs';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useRef } from 'react';
+import Script from 'next/script';
+import Image from 'next/image';
 
-// Window 인터페이스에 cv 속성 추가 (OpenCV.js를 위한 타입 확장)
-declare global {
-  interface Window {
-    cv: any;
-    cvPromise: Promise<any> | null; // OpenCV.js 로드 프로미스를 위한 전역 변수
-  }
+interface PetStyleRecommendationProps {
+  petImage?: string;
+  onStyleSelected?: (style: string) => void;
 }
 
-// 전역 변수 초기화 (클라이언트 사이드에서만 실행)
-if (typeof window !== 'undefined' && !window.cvPromise) {
-  window.cvPromise = null;
+// 스타일 점수 인터페이스 정의
+interface StyleScore {
+  style: string;
+  score: number;
 }
 
-// 반려동물 미용 스타일 타입 정의
-interface GroomingStyle {
+// 스타일 정보 인터페이스
+interface StyleInfo {
   id: string;
   name: string;
   description: string;
-  imageUrl: string;
-  confidence: number; // AI 추천 신뢰도 (0~1)
-  petType: 'DOG' | 'CAT'; // 반려동물 종류
+  exampleImage: string;
+  characteristics: string[];
+  suitableFor: string[];
 }
 
-// 컴포넌트 props 정의
-interface PetStyleRecommendationProps {
-  onSelectStyle?: (style: GroomingStyle) => void;
-}
-
-// 미리 정의된 미용 스타일 목록
-const DOG_STYLES: Omit<GroomingStyle, 'confidence'>[] = [
-  {
-    id: 'puppy-cut',
-    name: '퍼피 컷',
-    description: '강아지의 전체적인 털 길이를 균일하게 짧게 자르는 스타일로, 관리가 용이하고 귀여운 외모를 유지할 수 있습니다.',
-    imageUrl: '/images/styles/puppy-cut.jpg',
-    petType: 'DOG'
-  },
-  {
-    id: 'teddy-bear-cut',
-    name: '테디베어 컷',
-    description: '둥글고 푹신한 외형으로 테디베어와 같은 모습을 연출하는 스타일입니다. 얼굴은 둥글게, 몸통은 적당한 길이로 유지합니다.',
-    imageUrl: '/images/styles/teddy-bear-cut.jpg',
-    petType: 'DOG'
-  },
-  {
-    id: 'korean-cut',
-    name: '코리안 컷',
-    description: '한국에서 인기 있는 스타일로, 얼굴은 둥글게 다듬고 몸통은 짧게 정리하는 스타일입니다.',
-    imageUrl: '/images/styles/korean-cut.jpg',
-    petType: 'DOG'
-  },
-  {
-    id: 'show-cut',
-    name: '쇼 컷',
-    description: '견종 표준에 맞게 다듬어 전문적인 도그쇼에 출전할 수 있는 스타일입니다.',
-    imageUrl: '/images/styles/show-cut.jpg',
-    petType: 'DOG'
-  },
-  {
-    id: 'lion-cut',
-    name: '라이언 컷',
-    description: '몸통은 짧게 깎고 머리와 목 부분의 털은 길게 남겨 사자 모양으로 연출하는 스타일입니다.',
-    imageUrl: '/images/styles/lion-cut.jpg',
-    petType: 'DOG'
-  }
-];
-
-const CAT_STYLES: Omit<GroomingStyle, 'confidence'>[] = [
-  {
-    id: 'lion-cut-cat',
-    name: '라이언 컷',
-    description: '몸통의 털은 짧게 깎고 머리, 목, 발끝의 털은 남겨두어 사자와 같은 모습을 연출하는 스타일입니다.',
-    imageUrl: '/images/styles/lion-cut-cat.jpg',
-    petType: 'CAT'
-  },
-  {
-    id: 'persian-cut',
-    name: '페르시안 컷',
-    description: '장모종 고양이를 위한 스타일로, 털은 전체적으로 긴 길이를 유지하면서 매트를 제거하고 깔끔하게 정리합니다.',
-    imageUrl: '/images/styles/persian-cut.jpg',
-    petType: 'CAT'
-  },
-  {
-    id: 'sanitary-cut',
-    name: '위생 컷',
-    description: '위생을 위해 주요 부위(항문 주변, 복부, 발바닥 등)의 털만 깎는 최소한의 미용 스타일입니다.',
-    imageUrl: '/images/styles/sanitary-cut.jpg',
-    petType: 'CAT'
-  }
-];
-
-// AI 펫 미용 스타일 추천 컴포넌트
-const PetStyleRecommendation: React.FC<PetStyleRecommendationProps> = ({ onSelectStyle }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [petType, setPetType] = useState<'DOG' | 'CAT'>('DOG');
-  const [breedType, setBreedType] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+export default function PetStyleRecommendation({
+  petImage: initialPetImage,
+  onStyleSelected
+}: PetStyleRecommendationProps) {
+  // 모델 및 라이브러리 로딩 상태
+  const [tensorflowLoaded, setTensorflowLoaded] = useState(false);
+  const [opencvLoaded, setOpencvLoaded] = useState(false);
+  const [modelLoaded, setModelLoaded] = useState(false);
+  const [processingImage, setProcessingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [recommendedStyles, setRecommendedStyles] = useState<GroomingStyle[]>([]);
-  const [modelLoaded, setModelLoaded] = useState<boolean>(false);
-  const [cvLoaded, setCvLoaded] = useState<boolean>(false);
+  const [recommendedStyles, setRecommendedStyles] = useState<string[]>([]);
   
+  // 이미지 관련 상태
+  const [petImage, setPetImage] = useState<string | undefined>(initialPetImage);
+  const [previewImage, setPreviewImage] = useState<string | undefined>(initialPetImage);
+  
+  // 선택된 스타일 상태
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  
+  // 파일 입력 참조
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 모델 및 OpenCV 참조
+  const modelRef = useRef<any>(null);
+  const cvRef = useRef<any>(null);
+  const tfRef = useRef<any>(null);
+  
+  // 이미지 처리용 캔버스
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const modelRef = useRef<tf.GraphModel | null>(null);
   
-  // OpenCV.js 로드 함수 (싱글톤 패턴 적용)
-  const loadOpenCV = async () => {
-    if (typeof window === 'undefined') return null;
-    
-    try {
-      // 이미 로드되었는지 확인
-      if (window.cv) {
-        console.log('OpenCV.js가 이미 로드되었습니다.');
-        setCvLoaded(true);
-        return window.cv;
-      }
-      
-      // 로드 중인지 확인
-      if (window.cvPromise) {
-        console.log('OpenCV.js가 이미 로드 중입니다. 기존 프로미스 재사용.');
-        const cv = await window.cvPromise;
-        setCvLoaded(true);
-        return cv;
-      }
-      
-      console.log('OpenCV.js 로드 시작...');
-      
-      // 새로운 로드 프로미스 생성
-      window.cvPromise = new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://docs.opencv.org/4.5.5/opencv.js';
-        script.async = true;
-        script.type = 'text/javascript';
-        
-        // 로드 성공 시
-        script.onload = () => {
-          console.log('OpenCV.js 로드 완료!');
-          if (window.cv) {
-            setCvLoaded(true);
-            resolve(window.cv);
-          } else {
-            const error = new Error('OpenCV.js가 로드되었지만 window.cv 객체가 없습니다.');
-            reject(error);
-          }
-        };
-        
-        // 로드 실패 시
-        script.onerror = () => {
-          const error = new Error('OpenCV.js 로드 실패');
-          window.cvPromise = null; // 프로미스 초기화
-          reject(error);
-        };
-        
-        // <head>에 스크립트 추가
-        document.head.appendChild(script);
-      });
-      
-      const cv = await window.cvPromise;
-      setCvLoaded(true);
-      return cv;
-    } catch (error) {
-      console.error('OpenCV.js 로드 오류:', error);
-      window.cvPromise = null; // 오류 발생 시 프로미스 초기화
-      setCvLoaded(false);
-      setError('OpenCV.js를 로드하는데 실패했습니다. 페이지를 새로고침해보세요.');
-      return null;
+  // 스크립트 로딩 상태 추적
+  const tfScriptLoadedRef = useRef<boolean>(false);
+  const cvScriptLoadedRef = useRef<boolean>(false);
+
+  // 스타일 정보 데이터
+  const styleInfoData: Record<string, StyleInfo> = {
+    '짧은 컷': {
+      id: 'short-cut',
+      name: '짧은 컷',
+      description: '짧고 깔끔한 스타일로, 관리가 쉽고 더운 날씨에 적합합니다. 털이 짧아 옷이나 집안에 털이 덜 날립니다.',
+      exampleImage: '/images/pet-styles/short-cut.jpg',
+      characteristics: ['관리 용이', '시원함', '청결함'],
+      suitableFor: ['더운 날씨', '활동적인 반려동물', '털 관리가 어려운 보호자']
+    },
+    '중간 길이 컷': {
+      id: 'medium-cut',
+      name: '중간 길이 컷',
+      description: '짧은 컷과 긴 스타일의 중간 형태로, 적당한 보온성과 관리의 용이함을 모두 갖추고 있습니다.',
+      exampleImage: '/images/pet-styles/medium-cut.jpg',
+      characteristics: ['균형감', '다양한 스타일링', '적당한 보온성'],
+      suitableFor: ['사계절', '대부분의 반려동물', '일반적인 환경']
+    },
+    '긴 스타일': {
+      id: 'long-style',
+      name: '긴 스타일',
+      description: '우아하고 풍성한 느낌의 스타일로, 추운 날씨에 보온성이 좋습니다. 정기적인 브러싱과 관리가 필요합니다.',
+      exampleImage: '/images/pet-styles/long-style.jpg',
+      characteristics: ['우아함', '보온성', '풍성함'],
+      suitableFor: ['추운 날씨', '쇼 견/묘', '정기적 그루밍이 가능한 경우']
+    },
+    '테디베어 컷': {
+      id: 'teddy-bear',
+      name: '테디베어 컷',
+      description: '얼굴과 몸을 동그랗게 다듬어 테디베어처럼 귀여운 느낌을 주는 스타일입니다. 푹신한 질감이 특징입니다.',
+      exampleImage: '/images/pet-styles/teddy-bear.jpg',
+      characteristics: ['귀여움', '부드러움', '동그란 실루엣'],
+      suitableFor: ['푸들', '비숑', '말티즈', '포메라니안']
+    },
+    '라이언 컷': {
+      id: 'lion-cut',
+      name: '라이언 컷',
+      description: '얼굴 주변의 털은 남기고 몸은 짧게 깎아 사자와 같은 모습을 연출하는 스타일입니다. 독특하고 개성 있는 룩을 원하는 경우 적합합니다.',
+      exampleImage: '/images/pet-styles/lion-cut.jpg',
+      characteristics: ['독특함', '개성', '시원함'],
+      suitableFor: ['장모종 고양이', '푸들', '포메라니안']
     }
   };
   
-  // 모델 로드
+  // 디버깅을 위한 useEffect
   useEffect(() => {
-    const loadModel = async () => {
-      try {
-        // TensorFlow.js 모델 로드 (모델 경로는 실제 모델에 맞게 수정 필요)
-        // 실제 프로덕션에서는 public/models 폴더에 모델 파일을 저장하고 로드
-        // modelRef.current = await tf.loadGraphModel('/models/pet_classifier/model.json');
-        
-        // 예시: 여기서는 간단히 모델이 로드된 것으로 가정
-        setTimeout(() => {
-          setModelLoaded(true);
-        }, 1000);
-        
-      } catch (err) {
-        console.error('모델 로드 실패:', err);
-        setError('AI 모델을 로드하는데 실패했습니다. 다시 시도해주세요.');
-      }
-    };
-
-    // OpenCV.js와 모델 로드
-    const loadLibraries = async () => {
-      try {
-        await loadOpenCV();
-        await loadModel();
-      } catch (err) {
-        console.error('라이브러리 로드 실패:', err);
-      }
-    };
+    console.log('상태 변경:', { 
+      tensorflowLoaded, 
+      opencvLoaded, 
+      tfScriptLoadedRef: tfScriptLoadedRef.current, 
+      cvScriptLoadedRef: cvScriptLoadedRef.current 
+    });
     
-    loadLibraries();
-    
-    return () => {
-      // 정리 작업
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, []);
-
-  // 파일 선택 핸들러
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    // 이미지 파일 검증
-    if (!file.type.startsWith('image/')) {
-      setError('이미지 파일만 업로드 가능합니다.');
-      return;
+    // 두 라이브러리가 모두 로드되었다면 모델 로드 시도
+    if (tensorflowLoaded && opencvLoaded) {
+      console.log('두 라이브러리 모두 로드됨, 모델 로드 시도');
+      loadModel();
     }
+  }, [tensorflowLoaded, opencvLoaded]);
+
+  // TensorFlow.js 로드 완료 핸들러
+  const handleTensorflowLoad = () => {
+    console.log('TensorFlow.js 로드 완료');
     
-    // 파일 크기 검증 (5MB 제한)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('이미지 크기는 5MB 이하여야 합니다.');
-      return;
+    // window.tf 객체가 존재하는지 확인
+    if (typeof window !== 'undefined' && (window as any).tf) {
+      tfRef.current = (window as any).tf;
+      tfScriptLoadedRef.current = true;
+      setTensorflowLoaded(true);
+      
+      console.log('TF 로드 완료 후 상태:', { 
+        tf: tfRef.current ? '존재' : '없음',
+        tfLoaded: tfScriptLoadedRef.current, 
+        cvLoaded: cvScriptLoadedRef.current 
+      });
+    } else {
+      console.error('TensorFlow 객체를 찾을 수 없음');
+      setError('TensorFlow 객체를 찾을 수 없습니다');
     }
-    
-    setSelectedFile(file);
-    setError(null);
-    
-    // 이미지 미리보기 생성
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
   };
 
-  // 반려동물 타입 변경 핸들러
-  const handlePetTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPetType(e.target.value as 'DOG' | 'CAT');
-    setRecommendedStyles([]);  // 추천 스타일 초기화
+  // OpenCV.js 로드 완료 핸들러
+  const handleOpenCVLoad = () => {
+    console.log('OpenCV.js 로드 완료');
+    
+    // window.cv 객체가 존재하는지 확인
+    if (typeof window !== 'undefined' && (window as any).cv) {
+      cvRef.current = (window as any).cv;
+      cvScriptLoadedRef.current = true;
+      setOpencvLoaded(true);
+      
+      console.log('CV 로드 완료 후 상태:', { 
+        cv: cvRef.current ? '존재' : '없음',
+        tfLoaded: tfScriptLoadedRef.current, 
+        cvLoaded: cvScriptLoadedRef.current 
+      });
+    } else {
+      console.error('OpenCV 객체를 찾을 수 없음');
+      setError('OpenCV 객체를 찾을 수 없습니다');
+    }
   };
 
-  // 이미지 분석 및 스타일 추천
-  const analyzeImage = async () => {
-    if (!selectedFile || !previewUrl) {
-      setError('이미지를 선택해주세요.');
+  // 모델 로드 함수 - 더미 모델 사용
+  const loadModel = async () => {
+    // 명시적으로 참조 상태 확인
+    if (!tfRef.current || !cvRef.current) {
+      console.error('TF 또는 CV 참조가 없음:', {
+        tf: tfRef.current ? '존재' : '없음',
+        cv: cvRef.current ? '존재' : '없음'
+      });
       return;
     }
     
-    setLoading(true);
-    setError(null);
+    // 이미 모델이 로드된 경우 중복 로드 방지
+    if (modelRef.current) {
+      console.log('모델이 이미 로드되어 있음');
+      return;
+    }
     
     try {
-      // 이미지 로드 및 전처리
-      await preprocessImage();
+      console.log('테스트용 더미 모델 초기화...');
       
-      // 반려동물 품종 분석 (실제로는 AI 모델을 사용하지만, 여기서는 간단히 시뮬레이션)
-      const simulatedBreed = simulateBreedDetection(petType);
-      setBreedType(simulatedBreed);
+      // 더미 모델 객체 생성
+      const dummyModel = {
+        predict: (tensor: any) => {
+          console.log('더미 모델이 이미지를 분석 중...');
+          return {
+            data: async () => {
+              // 5개 스타일 클래스에 대한 더미 점수 (합계 1)
+              return new Float32Array([0.35, 0.25, 0.2, 0.15, 0.05]);
+            }
+          };
+        }
+      };
       
-      // 반려동물 타입에 따라 스타일 추천
-      const baseStyles = petType === 'DOG' ? DOG_STYLES : CAT_STYLES;
+      // 모델 참조에 더미 모델 저장
+      modelRef.current = dummyModel;
+      console.log('더미 모델 초기화 완료');
       
-      // AI 추천 로직 (실제로는 모델을 사용하여 추천하지만, 여기서는 랜덤하게 점수 부여)
-      const recommendedStyles = baseStyles.map(style => ({
-        ...style,
-        confidence: Math.random() * 0.5 + 0.5 // 0.5 ~ 1.0 사이의 랜덤 신뢰도
-      }))
-      .sort((a, b) => b.confidence - a.confidence); // 신뢰도 기준 내림차순 정렬
+      // 약간의 지연 후 로드 완료 상태로 변경 (실제 로딩 시뮬레이션)
+      setTimeout(() => {
+        setModelLoaded(true);
+        console.log('AI 모델 로드 완료(더미)');
+        
+        // 초기 이미지 처리
+        if (petImage) {
+          processImage(petImage);
+        }
+      }, 1500);
       
-      setRecommendedStyles(recommendedStyles);
     } catch (err) {
-      console.error('이미지 분석 실패:', err);
-      setError('이미지 분석에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setLoading(false);
+      console.error('모델 로드 오류:', err);
+      setError(`모델 로드 실패: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
-  // 이미지 전처리 함수
-  const preprocessImage = async (): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      if (!canvasRef.current || !imageRef.current || !previewUrl) {
-        reject(new Error('이미지 또는 캔버스 요소가 준비되지 않았습니다.'));
-        return;
-      }
-      
-      // 이미지가 로드되면 OpenCV.js로 전처리
-      imageRef.current.onload = () => {
-        if (!window.cv) {
-          console.warn('OpenCV.js가 로드되지 않았습니다. 전처리를 건너뜁니다.');
-          resolve();
-          return;
-        }
+  // 파일 업로드 핸들러
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    
+    // 이미지 파일 타입 확인
+    if (!file.type.startsWith('image/')) {
+      setError('이미지 파일만 업로드할 수 있습니다.');
+      return;
+    }
+    
+    // 파일 크기 확인 (10MB 제한)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('파일 크기는 10MB 이하여야 합니다.');
+      return;
+    }
+    
+    // 파일 읽기
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target && event.target.result) {
+        const imageDataUrl = event.target.result as string;
+        setPetImage(imageDataUrl);
+        setPreviewImage(imageDataUrl);
+        setSelectedStyle(null); // 새 이미지를 업로드하면 선택된 스타일 초기화
         
-        try {
-          const img = imageRef.current!;
-          const canvas = canvasRef.current!;
-          
-          // 캔버스 크기 설정
-          canvas.width = img.width;
-          canvas.height = img.height;
-          
-          // 이미지를 캔버스에 그리기
-          const ctx = canvas.getContext('2d')!;
-          ctx.drawImage(img, 0, 0, img.width, img.height);
-          
-          // 캔버스에서 이미지 데이터 가져오기
-          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          
-          // OpenCV.js로 이미지 처리 (예: 노이즈 제거, 밝기 조정 등)
-          // 여기서는 간단히 시뮬레이션
-          
-          resolve();
-        } catch (err) {
-          console.error('이미지 전처리 실패:', err);
-          reject(err);
+        // 에러 초기화
+        setError(null);
+        
+        // 모델이 로드되었으면 이미지 처리 시작
+        if (modelLoaded) {
+          processImage(imageDataUrl);
         }
-      };
-      
-      imageRef.current.onerror = () => {
-        reject(new Error('이미지 로드에 실패했습니다.'));
-      };
-      
-      // 이미지 소스 설정 (이미 위에서 설정했을 수 있음)
-      if (imageRef.current.src !== previewUrl) {
-        imageRef.current.src = previewUrl;
       }
-    });
+    };
+    
+    reader.onerror = () => {
+      setError('파일을 읽는 중 오류가 발생했습니다.');
+    };
+    
+    reader.readAsDataURL(file);
   };
 
-  // 반려동물 품종 감지 시뮬레이션 함수
-  const simulateBreedDetection = (petType: 'DOG' | 'CAT'): string => {
-    // 실제로는 AI 모델을 사용하여 품종을 감지하지만, 여기서는 간단히 시뮬레이션
-    const dogBreeds = ['말티즈', '푸들', '포메라니안', '시츄', '비숑 프리제', '치와와', '골든 리트리버'];
-    const catBreeds = ['페르시안', '브리티시 숏헤어', '러시안 블루', '먼치킨', '아메리칸 숏헤어'];
+  // 사진 다시 찍기 버튼 핸들러
+  const handleRetakePhoto = () => {
+    setPetImage(undefined);
+    setPreviewImage(undefined);
+    setRecommendedStyles([]);
+    setSelectedStyle(null);
     
-    const breeds = petType === 'DOG' ? dogBreeds : catBreeds;
-    return breeds[Math.floor(Math.random() * breeds.length)];
+    // 파일 input 초기화
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
+
+  // 이미지 처리 함수 - 실제 처리 없이 더미 결과 반환
+  const processImage = async (imageUrl: string) => {
+    if (!modelRef.current) {
+      console.warn('모델이 로드되지 않았습니다');
+      return;
+    }
+    
+    setProcessingImage(true);
+    console.log('이미지 처리 시작:', imageUrl);
+    
+    try {
+      // 처리 시간 시뮬레이션
+      setTimeout(() => {
+        try {
+          // OpenCV와 TensorFlow 처리를 시뮬레이션하는 더미 코드
+          console.log('이미지 전처리 및 분석 완료');
+          
+          // 더미 예측 결과
+          const styleCategories = [
+            '짧은 컷',
+            '중간 길이 컷',
+            '긴 스타일',
+            '테디베어 컷',
+            '라이언 컷'
+          ];
+          
+          // 더미 점수 (고정값)
+          const dummyScores = [0.35, 0.25, 0.2, 0.15, 0.05];
+          
+          // 스타일 점수 생성
+          const styleScores: StyleScore[] = styleCategories.map((style, i) => ({
+            style,
+            score: dummyScores[i]
+          })).sort((a, b) => b.score - a.score);
+          
+          // 상위 3개 스타일 추천
+          const topStyles = styleScores.slice(0, 3).map(item => item.style);
+          setRecommendedStyles(topStyles);
+          setProcessingImage(false);
+          
+          console.log('추천 스타일:', topStyles);
+        } catch (processError) {
+          console.error('이미지 처리 과정 오류:', processError);
+          setError('이미지 처리 중 오류가 발생했습니다');
+          setProcessingImage(false);
+        }
+      }, 2000); // 2초 지연으로 처리 시간 시뮬레이션
+      
+    } catch (err) {
+      console.error('이미지 처리 오류:', err);
+      setError(`이미지 처리 실패: ${err instanceof Error ? err.message : String(err)}`);
+      setProcessingImage(false);
+    }
+  };
+
+  // 이미지가 변경되면 처리 시작
+  useEffect(() => {
+    if (petImage && modelLoaded) {
+      processImage(petImage);
+    }
+  }, [petImage, modelLoaded]);
 
   // 스타일 선택 핸들러
-  const handleSelectStyle = (style: GroomingStyle) => {
-    if (onSelectStyle) {
-      onSelectStyle(style);
+  const handleStyleSelect = (style: string) => {
+    setSelectedStyle(style);
+    
+    // 콜백이 제공된 경우 호출
+    if (onStyleSelected) {
+      onStyleSelected(style);
     }
+  };
+
+  // 선택된 스타일 정보 가져오기
+  const getSelectedStyleInfo = () => {
+    if (!selectedStyle || !styleInfoData[selectedStyle]) {
+      return null;
+    }
+    
+    return styleInfoData[selectedStyle];
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold mb-4">AI 미용 스타일 추천</h2>
+    <div className="w-full">
+      {/* 숨겨진 캔버스 */}
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
       
-      {/* 라이브러리 로드 상태 표시 */}
-      {(!modelLoaded || !cvLoaded) && (
-        <div className="mb-4 p-3 bg-blue-50 rounded-md">
-          <p className="text-blue-700 text-sm">
-            AI 모델을 불러오는 중입니다. 잠시만 기다려주세요...
-            {cvLoaded ? '✓' : '○'} OpenCV.js {cvLoaded ? '로드됨' : '로드 중'}
-            {', '}
-            {modelLoaded ? '✓' : '○'} TensorFlow.js {modelLoaded ? '로드됨' : '로드 중'}
-          </p>
-        </div>
-      )}
+      {/* 스크립트 로딩 */}
+      <Script
+        id="tensorflow-script"
+        src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.1.0/dist/tf.min.js"
+        strategy="afterInteractive"
+        onLoad={handleTensorflowLoad}
+        onError={() => setError('TensorFlow.js 로드 실패')}
+      />
       
-      {/* 에러 메시지 */}
-      {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-          {error}
-        </div>
-      )}
+      <Script
+        id="opencv-script"
+        src="https://docs.opencv.org/4.7.0/opencv.js"
+        strategy="afterInteractive"
+        onLoad={handleOpenCVLoad}
+        onError={() => setError('OpenCV.js 로드 실패')}
+      />
       
-      {/* 반려동물 타입 선택 */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          반려동물 타입
-        </label>
-        <div className="flex space-x-4">
-          <label className="inline-flex items-center">
-            <input
-              type="radio"
-              className="form-radio"
-              name="petType"
-              value="DOG"
-              checked={petType === 'DOG'}
-              onChange={handlePetTypeChange}
-            />
-            <span className="ml-2">강아지</span>
-          </label>
-          <label className="inline-flex items-center">
-            <input
-              type="radio"
-              className="form-radio"
-              name="petType"
-              value="CAT"
-              checked={petType === 'CAT'}
-              onChange={handlePetTypeChange}
-            />
-            <span className="ml-2">고양이</span>
-          </label>
-        </div>
-      </div>
-      
-      {/* 이미지 업로드 */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          반려동물 사진 업로드
-        </label>
-        <input
-          type="file"
-          onChange={handleFileChange}
-          className="block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-full file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-blue-700
-            hover:file:bg-blue-100"
-          accept="image/*"
-        />
-        <p className="mt-1 text-sm text-gray-500">
-          5MB 이하의 이미지 파일을 업로드해주세요.
-        </p>
-      </div>
-      
-      {/* 이미지 미리보기 */}
-      {previewUrl && (
-        <div className="mb-4">
-          <h3 className="text-md font-medium mb-2">이미지 미리보기</h3>
-          <div className="relative w-full max-w-md mx-auto">
-            <img
-              ref={imageRef}
-              src={previewUrl}
-              alt="미리보기"
-              className="rounded-lg max-h-60 mx-auto"
-            />
-            <canvas 
-              ref={canvasRef} 
-              className="hidden" // 처리용 캔버스는 화면에 표시하지 않음
-            />
+      <div className="p-4 bg-white rounded-lg shadow">
+        <h3 className="text-lg font-semibold mb-3">AI 스타일 추천</h3>
+        
+        {/* 로딩 상태 표시 */}
+        {(!tensorflowLoaded || !opencvLoaded || !modelLoaded) && !error && (
+          <div className="flex items-center justify-center p-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-2"></div>
+              <p className="text-gray-600">
+                {!tensorflowLoaded ? 'TensorFlow.js 로드 중...' : 
+                 !opencvLoaded ? 'OpenCV.js 로드 중...' : 
+                 'AI 모델 로드 중...'}
+              </p>
+              {(!tensorflowLoaded || !opencvLoaded) && (
+                <p className="text-xs text-gray-500 mt-2">
+                  네트워크 상태에 따라 약간의 시간이 소요될 수 있습니다.
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-      
-      {/* 분석 버튼 */}
-      <div className="mb-6">
-        <button
-          onClick={analyzeImage}
-          disabled={!selectedFile || loading || !modelLoaded || !cvLoaded}
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              분석 중...
-            </span>
-          ) : !modelLoaded || !cvLoaded ? (
-            'AI 모델 로드 중...'
-          ) : (
-            '반려동물 이미지 분석'
-          )}
-        </button>
-      </div>
-      
-      {/* 분석 결과 */}
-      {breedType && (
-        <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-          <h3 className="text-md font-medium mb-2">분석 결과</h3>
-          <p><span className="font-medium">추정 품종:</span> {breedType}</p>
-        </div>
-      )}
-      
-      {/* 추천 스타일 */}
-      {recommendedStyles.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-lg font-medium mb-4">추천 미용 스타일</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {recommendedStyles.map((style) => (
-              <div 
-                key={style.id}
-                className="border rounded-lg p-4 hover:border-blue-500 cursor-pointer transition-colors"
-                onClick={() => handleSelectStyle(style)}
-              >
-                <div className="flex items-start justify-between">
-                  <h4 className="font-medium">{style.name}</h4>
-                  <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                    {Math.round(style.confidence * 100)}% 매치
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600 mt-2 mb-3">{style.description}</p>
+        )}
+        
+        {/* 에러 메시지 */}
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md mb-4">
+            <p className="text-red-600 text-sm">{error}</p>
+            <button 
+              className="mt-2 text-xs text-blue-600 hover:underline"
+              onClick={() => {
+                setError(null);
                 
-                {/* 스타일 이미지 */}
-                <div className="w-full h-40 bg-gray-200 rounded-md flex items-center justify-center">
-                  {/* 실제 이미지가 있으면 표시, 없으면 플레이스홀더 */}
-                  <span className="text-gray-500">스타일 이미지</span>
+                // 스크립트 로딩 상태 초기화 후 다시 시도
+                if (!tensorflowLoaded || !opencvLoaded) {
+                  // 스크립트 재로드 로직
+                  const reloadScripts = async () => {
+                    tfScriptLoadedRef.current = false;
+                    cvScriptLoadedRef.current = false;
+                    setTensorflowLoaded(false);
+                    setOpencvLoaded(false);
+                    
+                    // 스크립트 엘리먼트 다시 생성
+                    const head = document.head;
+                    
+                    // TensorFlow.js 로드
+                    const tfScript = document.createElement('script');
+                    tfScript.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.1.0/dist/tf.min.js';
+                    tfScript.onload = handleTensorflowLoad;
+                    tfScript.onerror = () => setError('TensorFlow.js 로드 실패');
+                    
+                    // OpenCV.js 로드
+                    const cvScript = document.createElement('script');
+                    cvScript.src = 'https://docs.opencv.org/4.7.0/opencv.js';
+                    cvScript.onload = handleOpenCVLoad;
+                    cvScript.onerror = () => setError('OpenCV.js 로드 실패');
+                    
+                    // 문서에 추가
+                    head.appendChild(tfScript);
+                    head.appendChild(cvScript);
+                  };
+                  
+                  reloadScripts();
+                } else if (!modelLoaded) {
+                  // 모델만 다시 로드 시도
+                  loadModel();
+                }
+              }}
+            >
+              다시 시도
+            </button>
+          </div>
+        )}
+        
+        {/* 이미지 업로드 섹션 */}
+        {modelLoaded && !previewImage && (
+          <div className="mt-4">
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-50 transition"
+                 onClick={() => fileInputRef.current?.click()}
+            >
+              <div className="text-center">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <p className="mt-2 text-sm text-gray-600">반려동물 사진을 업로드하세요</p>
+                <p className="mt-1 text-xs text-gray-500">JPG, PNG, GIF 형식 지원</p>
+              </div>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                accept="image/*" 
+                onChange={handleFileUpload}
+              />
+            </div>
+          </div>
+        )}
+        
+        {/* 이미지 미리보기 */}
+        {previewImage && (
+          <div className="mt-4">
+            <div className="relative">
+              <div className="rounded-lg overflow-hidden border border-gray-200">
+                <img 
+                  src={previewImage} 
+                  alt="반려동물 이미지" 
+                  className="w-full h-auto object-cover max-h-[300px]"
+                />
+              </div>
+              <button 
+                onClick={handleRetakePhoto}
+                className="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-gray-100"
+              >
+                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* 이미지 처리 중 */}
+        {processingImage && modelLoaded && (
+          <div className="flex items-center justify-center p-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+              <p className="text-gray-600">이미지 분석 중...</p>
+            </div>
+          </div>
+        )}
+        
+        {/* 추천 결과 */}
+        {modelLoaded && !processingImage && recommendedStyles.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium mb-2">추천 스타일:</h4>
+            <div className="grid grid-cols-1 gap-2">
+              {recommendedStyles.map((style, index) => (
+                <button
+                  key={index}
+                  className={`p-3 rounded-md border text-left text-sm transition ${
+                    selectedStyle === style 
+                      ? 'bg-blue-50 border-blue-300 text-blue-700' 
+                      : 'bg-gray-50 hover:bg-gray-100 border-gray-200'
+                  }`}
+                  onClick={() => handleStyleSelect(style)}
+                >
+                  <div className="flex justify-between items-center">
+                    <span>{style}</span>
+                    {selectedStyle === style && (
+                      <svg className="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* 선택된 스타일 상세 정보 */}
+        {selectedStyle && getSelectedStyleInfo() && (
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h4 className="font-medium text-gray-800 mb-2">{selectedStyle} 스타일 설명</h4>
+            <p className="text-sm text-gray-600 mb-3">{getSelectedStyleInfo()?.description}</p>
+            
+            <div className="mt-3">
+              <h5 className="text-xs font-medium text-gray-700 mb-1">특징:</h5>
+              <div className="flex flex-wrap gap-1 mb-3">
+                {getSelectedStyleInfo()?.characteristics.map((characteristic, idx) => (
+                  <span key={idx} className="inline-block px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded">
+                    {characteristic}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <div className="mt-2">
+              <h5 className="text-xs font-medium text-gray-700 mb-1">이런 반려동물에게 적합:</h5>
+              <ul className="list-disc list-inside text-xs text-gray-600 pl-1">
+                {getSelectedStyleInfo()?.suitableFor.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="mt-4">
+              <button
+                className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded transition"
+                onClick={() => {
+                  alert(`${selectedStyle} 스타일을 선택하셨습니다. 견적서에 반영됩니다.`);
+                  // 여기에 견적서 페이지로 이동하거나 선택 정보를 저장하는 로직 추가
+                }}
+              >
+                이 스타일로 견적 요청하기
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* 모델은 로드됐지만 이미지가 없는 경우 안내 */}
+        {!previewImage && !error && modelLoaded && !processingImage && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-md">
+            <p className="text-sm text-gray-600">
+              반려동물 이미지를 업로드하면 AI가 최적의 미용 스타일을 추천해 드립니다.
+            </p>
+          </div>
+        )}
+        
+        {/* 인기 스타일 섹션 */}
+        <div className="mt-8">
+          <h4 className="text-sm font-medium mb-3">인기 미용 스타일</h4>
+          <div className="grid grid-cols-2 gap-3">
+            {Object.values(styleInfoData).slice(0, 4).map((style) => (
+              <div key={style.id} className="border rounded-lg overflow-hidden bg-white">
+                <div className="h-24 bg-gray-200 flex items-center justify-center">
+                  {/* 실제 이미지가 없으므로 스타일 이름 표시 */}
+                  <span className="text-sm text-gray-500">{style.name} 이미지</span>
+                </div>
+                <div className="p-2">
+                  <h5 className="text-xs font-medium">{style.name}</h5>
+                  <p className="text-xs text-gray-500 truncate mt-1">{style.description.substring(0, 36)}...</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
-};
-
-export default PetStyleRecommendation;
+}

@@ -9,6 +9,8 @@ import Footer from '@/components/layout/Footer';
 import './globals.css';
 
 
+
+
 // Inter 폰트 설정 (variable 속성 추가)
 const inter = Inter({ 
   subsets: ['latin'],
@@ -19,6 +21,10 @@ export const metadata: Metadata = {
   title: '털고고 | 반려동물 미용 서비스 견적 비교 플랫폼',
   description: '내 주변 반려동물 미용 서비스 견적을 간편하게 받아보고 비교해보세요. 반려견, 반려묘를 위한 다양한 미용 서비스를 한 곳에서.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
   themeColor: '#3f51b5',
   appleWebApp: {
     capable: true,

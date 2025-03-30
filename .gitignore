@@ -25,3 +25,4 @@ backend/teolgogo-api/*.iml
 Thumbs.db
 ehthumbs.db
 *.DS_Store
+backend/teolgogo-api/src/main/resources/application.yml
