@@ -126,27 +126,17 @@ public class CookieUtils {
         cookie.setHttpOnly(true);
         cookie.setMaxAge(maxAge);
 
-        // 개발/운영 환경에 따라 설정 분기
-        // application.properties나 application.yml에서 설정한 profile을 활용
-        // 이 부분은 Spring 환경에 맞게 수정해야 함
-        String activeProfile = System.getProperty("spring.profiles.active", "dev");
-        boolean isProduction = "prod".equals(activeProfile) || "production".equals(activeProfile);
+        // 로컬 개발 환경에서는 secure=false로 설정
+        // (개발/운영 환경에 따라 분기 처리 가능)
+        // cookie.setSecure(true);
 
-        if (isProduction) {
-            cookie.setSecure(true);
-            // 현대 브라우저에서는 Set-Cookie 헤더로 SameSite 속성을 설정할 수 있음
-            // 그러나 Jakarta Servlet API에서는 직접 지원하지 않으므로 헤더를 직접 설정
-            response.addHeader("Set-Cookie", String.format("%s=%s; Path=%s; Max-Age=%d; HttpOnly; Secure; SameSite=None",
-                    cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getMaxAge()));
-        } else {
-            response.addCookie(cookie);
-        }
+        response.addCookie(cookie);
     }
 
     /**
      * 리프레시 토큰 쿠키 삭제
      */
-    public void deleteRefreshTokenCookie(HttpServletResponse response) {
+    public static void deleteRefreshTokenCookie(HttpServletResponse response) {
         Cookie cookie = new Cookie("refresh_token", "");
         cookie.setPath("/");
         cookie.setMaxAge(0);

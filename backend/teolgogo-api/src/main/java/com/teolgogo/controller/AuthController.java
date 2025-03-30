@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -33,8 +36,16 @@ public class AuthController {
     // 로그인 API
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        TokenResponse tokenResponse = authService.login(loginRequest, response);
-        return ResponseEntity.ok(tokenResponse);
+        System.out.println("로그인 요청: " + loginRequest.getEmail());
+
+        try {
+            TokenResponse tokenResponse = authService.login(loginRequest, response);
+            System.out.println("로그인 성공: " + loginRequest.getEmail());
+            return ResponseEntity.ok(tokenResponse);
+        } catch (Exception e) {
+            System.err.println("로그인 실패: " + e.getMessage());
+            throw e;
+        }
     }
 
     @PostMapping("/signup")
@@ -109,4 +120,25 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
+    // 사용자 정보 조회 엔드포인트 추가
+    @GetMapping("/user")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.badRequest().body("인증된 사용자를 찾을 수 없습니다.");
+        }
+
+        // 필요한 사용자 정보만 반환 (보안상 비밀번호 등은 제외)
+        Map<String, Object> userResponse = new HashMap<>();
+        userResponse.put("id", user.getId());
+        userResponse.put("email", user.getEmail());
+        userResponse.put("name", user.getName());
+        userResponse.put("role", user.getRole());
+        // 필요한 다른 사용자 정보 추가
+
+        return ResponseEntity.ok(userResponse);
+    }
+
+
+
 }

@@ -20,11 +20,16 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("이메일 " + email + "로 사용자를 찾을 수 없습니다."));
+        System.out.println("사용자 정보 로드 시도: " + email);
 
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    System.err.println("사용자를 찾을 수 없음: " + email);
+                    return new UsernameNotFoundException("User not found with email : " + email);
+                });
+
+        System.out.println("사용자 정보 로드 성공: " + email);
         return user;
     }
 

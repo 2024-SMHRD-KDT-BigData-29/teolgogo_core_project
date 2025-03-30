@@ -139,29 +139,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // 로그인 함수
-  const login = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // API 로그인 호출
-      await apiLogin({ email, password });
-      
-      // 사용자 정보 가져오기
-      const userData = await getCurrentUser();
-      const typedUser = userData as User;
-      setUser(typedUser);
-      
-      // 사용자 정보를 로컬 스토리지에 저장
-      localStorage.setItem('user', JSON.stringify(typedUser));
-    } catch (err: any) {
-      setError(err.response?.data?.message || '로그인에 실패했습니다.');
-      console.error('로그인 실패:', err);
-      throw err;
-    } finally {
-      setLoading(false);
+const login = async (email: string, password: string) => {
+  try {
+    setLoading(true);
+    setError(null);
+    
+    // API 로그인 호출
+    const response = await apiLogin({ email, password });
+    
+    // 응답에서 토큰 확인 및 저장 (이 부분 추가)
+    if (response?.data?.accessToken) {
+      localStorage.setItem('accessToken', response.data.accessToken);
+      console.log('액세스 토큰 저장됨:', response.data.accessToken.substring(0, 20) + '...');
     }
-  };
+    if (response?.data?.refreshToken) {
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      console.log('리프레시 토큰 저장됨:', response.data.refreshToken.substring(0, 20) + '...');
+    }
+    
+    // 사용자 정보 가져오기
+    const userData = await getCurrentUser();
+    const typedUser = userData as User;
+    setUser(typedUser);
+    
+    // 사용자 정보를 로컬 스토리지에 저장
+    localStorage.setItem('user', JSON.stringify(typedUser));
+  } catch (err: any) {
+    setError(err.response?.data?.message || '로그인에 실패했습니다.');
+    console.error('로그인 실패:', err);
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+};
 
   // 로그아웃 함수
   const logout = () => {

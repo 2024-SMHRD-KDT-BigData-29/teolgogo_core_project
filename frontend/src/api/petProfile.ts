@@ -12,7 +12,7 @@ import {
 // 사용자의 모든 반려동물 프로필 조회
 export const getUserPetProfiles = async (): Promise<PetProfile[]> => {
   try {
-    const response = await apiClient.get('/api/pet-profiles');
+    const response = await apiClient.get('/pet-profiles');
     return response.data;
   } catch (error) {
     console.error('반려동물 프로필 목록 조회 실패:', error);
@@ -23,7 +23,7 @@ export const getUserPetProfiles = async (): Promise<PetProfile[]> => {
 // 특정 반려동물 프로필 조회
 export const getPetProfile = async (petProfileId: number): Promise<PetProfile> => {
   try {
-    const response = await apiClient.get(`/api/pet-profiles/${petProfileId}`);
+    const response = await apiClient.get(`/pet-profiles/${petProfileId}`);
     return response.data;
   } catch (error) {
     console.error('반려동물 프로필 조회 실패:', error);
@@ -45,7 +45,7 @@ export const createPetProfile = async (profileData: CreatePetProfileRequest): Pr
       // 이미지 파일 추가
       formData.append('profileImage', imageFile);
       
-      const response = await apiClient.post('/api/pet-profiles', formData, {
+      const response = await apiClient.post('/pet-profiles', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -54,7 +54,7 @@ export const createPetProfile = async (profileData: CreatePetProfileRequest): Pr
       return response.data;
     } else {
       // 이미지가 없는 경우 일반 JSON 요청
-      const response = await apiClient.post('/api/pet-profiles', profileData);
+      const response = await apiClient.post('/pet-profiles', profileData);
       return response.data;
     }
   } catch (error) {
@@ -80,7 +80,7 @@ export const updatePetProfile = async (
       // 이미지 파일 추가
       formData.append('profileImage', imageFile);
       
-      const response = await apiClient.put(`/api/pet-profiles/${petProfileId}`, formData, {
+      const response = await apiClient.put(`/pet-profiles/${petProfileId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -89,7 +89,7 @@ export const updatePetProfile = async (
       return response.data;
     } else {
       // 이미지가 없는 경우 일반 JSON 요청
-      const response = await apiClient.put(`/api/pet-profiles/${petProfileId}`, profileData);
+      const response = await apiClient.put(`/pet-profiles/${petProfileId}`, profileData);
       return response.data;
     }
   } catch (error) {
@@ -101,7 +101,7 @@ export const updatePetProfile = async (
 // 반려동물 프로필 삭제
 export const deletePetProfile = async (petProfileId: number): Promise<void> => {
   try {
-    await apiClient.delete(`/api/pet-profiles/${petProfileId}`);
+    await apiClient.delete(`/pet-profiles/${petProfileId}`);
   } catch (error) {
     console.error('반려동물 프로필 삭제 실패:', error);
     throw error;
@@ -111,7 +111,7 @@ export const deletePetProfile = async (petProfileId: number): Promise<void> => {
 // 반려동물 미용 히스토리 조회
 export const getPetGroomingHistory = async (petProfileId: number): Promise<GroomingHistory[]> => {
   try {
-    const response = await apiClient.get(`/api/pet-profiles/${petProfileId}/grooming-history`);
+    const response = await apiClient.get(`/pet-profiles/${petProfileId}/grooming-history`);
     return response.data;
   } catch (error) {
     console.error('반려동물 미용 히스토리 조회 실패:', error);
@@ -128,7 +128,7 @@ export const updatePetProfileImage = async (
     const formData = new FormData();
     formData.append('profileImage', imageFile);
     
-    const response = await apiClient.post(`/api/pet-profiles/${petProfileId}/image`, formData, {
+    const response = await apiClient.post(`/pet-profiles/${petProfileId}/image`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -144,7 +144,7 @@ export const updatePetProfileImage = async (
 // 견적 요청 시 반려동물 프로필 선택을 위한 간단한 목록 조회
 export const getPetProfilesForQuote = async (): Promise<{ id: number; name: string; type: string; breed: string; imageUrl?: string; }[]> => {
   try {
-    const response = await apiClient.get('/api/pet-profiles/list-for-quote');
+    const response = await apiClient.get('/pet-profiles/list-for-quote');
     return response.data;
   } catch (error) {
     console.error('견적용 반려동물 프로필 목록 조회 실패:', error);

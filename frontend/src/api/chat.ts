@@ -167,7 +167,7 @@ export const markMessagesAsRead = (roomId: number | string, messageIds: (number 
 // 일반 API를 통한 메시지 전송 (WebSocket 연결이 불안정할 때 사용)
 export const sendChatMessageViaApi = async (roomId: number | string, content: string) => {
   try {
-    const response = await apiClient.post(`/api/chat/rooms/${roomId}/messages`, { content });
+    const response = await apiClient.post(`/chat/rooms/${roomId}/messages`, { content });
     return response.data;
   } catch (error) {
     console.error('메시지 전송 실패:', error);
@@ -178,7 +178,7 @@ export const sendChatMessageViaApi = async (roomId: number | string, content: st
 // 채팅방 목록 가져오기
 export const getChatRooms = async () => {
   try {
-    const response = await apiClient.get('/api/chat/rooms');
+    const response = await apiClient.get('/chat/rooms');
     return response.data;
   } catch (error) {
     console.error('채팅방 목록 가져오기 실패:', error);
@@ -189,7 +189,7 @@ export const getChatRooms = async () => {
 // 채팅 메시지 가져오기
 export const getChatMessages = async (roomId: string | number) => {
   try {
-    const response = await apiClient.get(`/api/chat/rooms/${roomId}/messages`);
+    const response = await apiClient.get(`/chat/rooms/${roomId}/messages`);
     return response.data;
   } catch (error) {
     console.error('채팅 메시지 가져오기 실패:', error);
@@ -200,7 +200,7 @@ export const getChatMessages = async (roomId: string | number) => {
 // 채팅방 상세 조회
 export const getChatRoomDetails = async (roomId: number | string): Promise<ChatRoomDetails> => {
   try {
-    const response = await apiClient.get(`/api/chat/rooms/${roomId}`);
+    const response = await apiClient.get(`/chat/rooms/${roomId}`);
     return response.data;
   } catch (error) {
     console.error('채팅방 상세 조회 실패:', error);
@@ -213,7 +213,7 @@ export const createChatRoom = async (quotationIdOrRequestId: string | number, bu
   try {
     // 새 API 형식 (quoteRequestId와 businessId를 받는 경우)
     if (businessId !== undefined) {
-      const response = await apiClient.post('/api/chat/rooms', {
+      const response = await apiClient.post('/chat/rooms', {
         quoteRequestId: quotationIdOrRequestId,
         businessId: businessId,
       });
@@ -221,7 +221,7 @@ export const createChatRoom = async (quotationIdOrRequestId: string | number, bu
     } 
     // 구 API 형식 (quotationId만 받는 경우)
     else {
-      const response = await apiClient.post('/api/chat/rooms', { 
+      const response = await apiClient.post('/chat/rooms', { 
         quotationId: quotationIdOrRequestId 
       });
       return response.data;

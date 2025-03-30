@@ -75,7 +75,7 @@ export const createQuotationRequest = async (requestData: CreateQuoteRequest | a
         formData.append('petPhotos', file);
       });
       
-      const response = await apiClient.post('/api/quotes/requests', formData, {
+      const response = await apiClient.post('/quotes/requests', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -84,7 +84,7 @@ export const createQuotationRequest = async (requestData: CreateQuoteRequest | a
       return response.data;
     } else {
       // 일반 JSON 요청 (파일 업로드가 없을 때)
-      const response = await apiClient.post('/api/quotation/requests', requestData);
+      const response = await apiClient.post('/quotation/requests', requestData);
       return response.data;
     }
   } catch (error) {
@@ -96,7 +96,7 @@ export const createQuotationRequest = async (requestData: CreateQuoteRequest | a
 // 견적 요청 목록 가져오기
 export const getQuotationRequests = async (params = {}) => {
   try {
-    const response = await apiClient.get('/api/quotation/requests', { params });
+    const response = await apiClient.get('/quotation/requests', { params });
     return response.data;
   } catch (error) {
     console.error('견적 요청 목록 가져오기 실패:', error);
@@ -107,7 +107,7 @@ export const getQuotationRequests = async (params = {}) => {
 // 고객의 견적 요청 목록 조회
 export const getCustomerQuoteRequests = async () => {
   try {
-    const response = await apiClient.get('/api/quotes/customer/requests');
+    const response = await apiClient.get('/quotes/customer/requests');
     return response.data;
   } catch (error) {
     console.error('견적 요청 목록 조회 실패:', error);
@@ -118,7 +118,7 @@ export const getCustomerQuoteRequests = async () => {
 // 견적 요청 상세 정보 가져오기
 export const getQuotationRequest = async (id: string | number) => {
   try {
-    const response = await apiClient.get(`/api/quotation/requests/${id}`);
+    const response = await apiClient.get(`/quotation/requests/${id}`);
     return response.data;
   } catch (error) {
     console.error('견적 요청 상세 정보 가져오기 실패:', error);
@@ -129,7 +129,7 @@ export const getQuotationRequest = async (id: string | number) => {
 // 견적 요청 상세 조회 (더 자세한 인터페이스 제공)
 export const getQuoteRequestDetails = async (requestId: number | string): Promise<QuoteRequestDetails> => {
   try {
-    const response = await apiClient.get(`/api/quotes/requests/${requestId}`);
+    const response = await apiClient.get(`/quotes/requests/${requestId}`);
     return response.data;
   } catch (error) {
     console.error('견적 요청 상세 조회 실패:', error);
@@ -144,7 +144,7 @@ export const getAvailableQuoteRequests = async (
   radius?: number
 ) => {
   try {
-    let url = '/api/quotes/business/available';
+    let url = '/quotes/business/available';
     const params: Record<string, string> = {};
     
     if (latitude) params.latitude = latitude.toString();
@@ -162,7 +162,7 @@ export const getAvailableQuoteRequests = async (
 // 견적 제안하기 (업체용)
 export const createQuotationOffer = async (requestId: string | number, offerData: any | Partial<QuoteResponse>) => {
   try {
-    const response = await apiClient.post(`/api/quotation/requests/${requestId}/offers`, offerData);
+    const response = await apiClient.post(`/quotation/requests/${requestId}/offers`, offerData);
     return response.data;
   } catch (error) {
     console.error('견적 제안 실패:', error);
@@ -173,7 +173,7 @@ export const createQuotationOffer = async (requestId: string | number, offerData
 // 견적 수락하기 (고객용)
 export const acceptQuotationOffer = async (requestId: string | number, offerId: string | number) => {
   try {
-    const response = await apiClient.post(`/api/quotation/requests/${requestId}/offers/${offerId}/accept`);
+    const response = await apiClient.post(`/quotation/requests/${requestId}/offers/${offerId}/accept`);
     return response.data;
   } catch (error) {
     console.error('견적 수락 실패:', error);
@@ -204,7 +204,7 @@ export const uploadGroomingPhotos = async (
       });
     }
     
-    const response = await apiClient.post(`/api/quotes/responses/${responseId}/photos`, formData, {
+    const response = await apiClient.post(`/quotes/responses/${responseId}/photos`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

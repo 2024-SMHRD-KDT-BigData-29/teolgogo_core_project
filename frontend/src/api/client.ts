@@ -6,7 +6,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { getUserFriendlyErrorMessage } from '@/utils/errorHandling';
 
 // API 기본 설정 - '/api' 접미사 제거
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 // 요청 중인 토큰 갱신 Promise를 저장
 let refreshTokenPromise: Promise<string> | null = null;
@@ -73,6 +73,9 @@ apiClient.interceptors.request.use(
       const token = localStorage.getItem('token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log('요청 헤더에 토큰 추가:', token.substring(0, 20) + "...");
+      } else {
+        console.log('토큰이 없어 헤더에 추가되지 않음');
       }
     }
     return config;
@@ -192,12 +195,14 @@ apiClient.interceptors.response.use(
 const refreshAccessToken = async (): Promise<string> => {
   try {
     const refreshToken = localStorage.getItem('refreshToken');
+    console.log('토큰 갱신 시도 - 저장된 리프레시 토큰:', refreshToken ? refreshToken.substring(0, 20) + "..." : "없음");
     
     if (!refreshToken) {
       throw new Error('리프레시 토큰이 없습니다');
     }
     
     // '/api' 접두사 제거
+    console.log('토큰 갱신 요청 URL:', `${API_URL}/auth/refresh`);
     const response = await axios.post(`${API_URL}/auth/refresh`, null, {
       withCredentials: true,
       headers: {
@@ -205,13 +210,18 @@ const refreshAccessToken = async (): Promise<string> => {
       }
     });
     
-    const { accessToken } = response.data;
+    console.log('토큰 갱신 응답:', response.data);
+    const { accessToken, refreshToken: newRefreshToken } = response.data;
     
     // 새 토큰 저장
     localStorage.setItem('token', accessToken);
+    if (newRefreshToken) {
+      localStorage.setItem('refreshToken', newRefreshToken);
+    }
     
     return accessToken;
   } catch (error) {
+    console.error('토큰 갱신 실패:', error);
     // 토큰 갱신 실패 시 스토리지 클리어
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
@@ -219,7 +229,6 @@ const refreshAccessToken = async (): Promise<string> => {
     throw error;
   }
 };
-
 // 로딩 상태 확인 함수
 export const isLoading = () => pendingRequests > 0;
 

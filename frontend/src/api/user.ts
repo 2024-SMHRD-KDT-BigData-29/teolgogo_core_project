@@ -4,7 +4,7 @@ import { UserInfo } from './auth';
 // 사용자 정보 가져오기
 export const getUserProfile = async (userId: number): Promise<UserInfo> => {
   try {
-    const response = await apiClient.get(`/api/users/${userId}`);
+    const response = await apiClient.get(`/users/${userId}`);
     return response.data;
   } catch (error) {
     console.error('사용자 정보 조회 실패:', error);
@@ -15,7 +15,7 @@ export const getUserProfile = async (userId: number): Promise<UserInfo> => {
 // 사용자 프로필 업데이트
 export const updateUserProfile = async (userData: Partial<UserInfo>): Promise<UserInfo> => {
   try {
-    const response = await apiClient.put('/api/auth/profile', userData);
+    const response = await apiClient.put('/auth/profile', userData);
     // 업데이트된 사용자 정보 로컬 저장소에도 저장
     localStorage.setItem('user', JSON.stringify(response.data));
     return response.data;
@@ -31,7 +31,7 @@ export const updateProfileImage = async (imageFile: File): Promise<UserInfo> => 
     const formData = new FormData();
     formData.append('profileImage', imageFile);
     
-    const response = await apiClient.post('/api/auth/profile/image', formData, {
+    const response = await apiClient.post('/auth/profile/image', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -49,7 +49,7 @@ export const updateProfileImage = async (imageFile: File): Promise<UserInfo> => 
 // 비밀번호 변경
 export const changePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
   try {
-    await apiClient.post('/api/auth/password', {
+    await apiClient.post('/auth/password', {
       currentPassword,
       newPassword,
     });
@@ -69,7 +69,7 @@ export const updateBusinessProfile = async (businessData: {
   specialties?: string[];
 }): Promise<UserInfo> => {
   try {
-    const response = await apiClient.put('/api/auth/business-profile', businessData);
+    const response = await apiClient.put('/auth/business-profile', businessData);
     
     // 업데이트된 사용자 정보 로컬 저장소에도 저장
     localStorage.setItem('user', JSON.stringify(response.data));
@@ -86,7 +86,7 @@ export const uploadBusinessLicense = async (licenseFile: File): Promise<UserInfo
     const formData = new FormData();
     formData.append('license', licenseFile);
     
-    const response = await apiClient.post('/api/auth/business-license', formData, {
+    const response = await apiClient.post('/auth/business-license', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -109,7 +109,7 @@ export const findNearbyBusinesses = async (
   specialties?: string[]
 ): Promise<UserInfo[]> => {
   try {
-    const response = await apiClient.get('/api/businesses/nearby', {
+    const response = await apiClient.get('/businesses/nearby', {
       params: {
         latitude,
         longitude,
@@ -139,7 +139,7 @@ export const getBusinessDetails = async (businessId: number): Promise<{
   };
 }> => {
   try {
-    const response = await apiClient.get(`/api/businesses/${businessId}/details`);
+    const response = await apiClient.get(`/businesses/${businessId}/details`);
     return response.data;
   } catch (error) {
     console.error('업체 상세 정보 조회 실패:', error);

@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.concurrent.TimeUnit;
@@ -42,5 +43,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")  // 모든 헤더 허용
                 .allowCredentials(true);  // 쿠키 허용
 
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        // /api/auth/** 요청을 /auth/**로 포워딩
+        registry.addViewController("/api/auth/**").setViewName("forward:/auth/**");
     }
 }

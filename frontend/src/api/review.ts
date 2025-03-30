@@ -38,7 +38,7 @@ export interface ReviewFilter {
 // 리뷰 생성
 export const createReview = async (reviewData: CreateReviewRequest): Promise<Review> => {
   try {
-    const response = await apiClient.post('/api/reviews', reviewData);
+    const response = await apiClient.post('/reviews', reviewData);
     return response.data;
   } catch (error) {
     console.error('리뷰 생성 실패:', error);
@@ -49,7 +49,7 @@ export const createReview = async (reviewData: CreateReviewRequest): Promise<Rev
 // 업체 리뷰 목록 조회
 export const getBusinessReviews = async (businessId: number, filter?: Partial<ReviewFilter>): Promise<Review[]> => {
   try {
-    const response = await apiClient.get(`/api/reviews/business/${businessId}`, {
+    const response = await apiClient.get(`/reviews/business/${businessId}`, {
       params: filter,
     });
     return response.data;
@@ -62,7 +62,7 @@ export const getBusinessReviews = async (businessId: number, filter?: Partial<Re
 // 고객 리뷰 목록 조회
 export const getCustomerReviews = async (): Promise<Review[]> => {
   try {
-    const response = await apiClient.get('/api/reviews/customer');
+    const response = await apiClient.get('/reviews/customer');
     return response.data;
   } catch (error) {
     console.error('고객 리뷰 목록 조회 실패:', error);
@@ -73,7 +73,7 @@ export const getCustomerReviews = async (): Promise<Review[]> => {
 // 리뷰 상세 조회
 export const getReviewDetails = async (reviewId: number): Promise<Review> => {
   try {
-    const response = await apiClient.get(`/api/reviews/${reviewId}`);
+    const response = await apiClient.get(`/reviews/${reviewId}`);
     return response.data;
   } catch (error) {
     console.error('리뷰 상세 조회 실패:', error);
@@ -84,7 +84,7 @@ export const getReviewDetails = async (reviewId: number): Promise<Review> => {
 // 리뷰 수정
 export const updateReview = async (reviewId: number, reviewData: Partial<CreateReviewRequest>): Promise<Review> => {
   try {
-    const response = await apiClient.put(`/api/reviews/${reviewId}`, reviewData);
+    const response = await apiClient.put(`/reviews/${reviewId}`, reviewData);
     return response.data;
   } catch (error) {
     console.error('리뷰 수정 실패:', error);
@@ -95,7 +95,7 @@ export const updateReview = async (reviewId: number, reviewData: Partial<CreateR
 // 리뷰 삭제
 export const deleteReview = async (reviewId: number): Promise<void> => {
   try {
-    await apiClient.delete(`/api/reviews/${reviewId}`);
+    await apiClient.delete(`/reviews/${reviewId}`);
   } catch (error) {
     console.error('리뷰 삭제 실패:', error);
     throw error;
@@ -105,7 +105,7 @@ export const deleteReview = async (reviewId: number): Promise<void> => {
 // 리뷰 작성 가능 여부 확인
 export const checkReviewEligibility = async (quoteResponseId: number): Promise<{ eligible: boolean; message?: string }> => {
   try {
-    const response = await apiClient.get(`/api/reviews/check-eligibility/${quoteResponseId}`);
+    const response = await apiClient.get(`/reviews/check-eligibility/${quoteResponseId}`);
     return response.data;
   } catch (error) {
     console.error('리뷰 작성 가능 여부 확인 실패:', error);
@@ -121,7 +121,7 @@ export const getBusinessReviewStats = async (businessId: number): Promise<{
   popularTags: { tag: string; count: number }[];
 }> => {
   try {
-    const response = await apiClient.get(`/api/reviews/stats/business/${businessId}`);
+    const response = await apiClient.get(`/reviews/stats/business/${businessId}`);
     return response.data;
   } catch (error) {
     console.error('리뷰 통계 조회 실패:', error);
@@ -132,7 +132,7 @@ export const getBusinessReviewStats = async (businessId: number): Promise<{
 // 특정 서비스(견적 응답)에 대한 리뷰 조회
 export const getQuoteResponseReview = async (quoteResponseId: number): Promise<Review | null> => {
   try {
-    const response = await apiClient.get(`/api/reviews/quote-response/${quoteResponseId}`);
+    const response = await apiClient.get(`/reviews/quote-response/${quoteResponseId}`);
     return response.data;
   } catch (error) {
     if (error && typeof error === 'object' && 'response' in error && 

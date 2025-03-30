@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/quotes")
+@RequestMapping("/quotes")
 public class QuoteController {
 
     private final QuoteService quoteService;

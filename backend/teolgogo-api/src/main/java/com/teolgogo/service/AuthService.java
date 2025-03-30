@@ -44,29 +44,47 @@ public class AuthService {
 
     // 로그인 처리
     public TokenResponse login(LoginRequest loginRequest, HttpServletResponse response) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
+        try {
+            System.out.println("로그인 시도: " + loginRequest.getEmail());
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
 
-        User user = (User) authentication.getPrincipal();
-        String accessToken = tokenProvider.createAccessToken(user);
-        String refreshToken = tokenProvider.createRefreshToken(user);
+            System.out.println("인증 성공: " + loginRequest.getEmail());
 
-        // 리프레시 토큰은 쿠키에 저장
-        int refreshTokenMaxAge = (int) (tokenProvider.getRefreshTokenExpirationMsec() / 1000);
-        cookieUtils.addRefreshTokenCookie(response, refreshToken, refreshTokenMaxAge);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return TokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .tokenType("Bearer")
-                .expiresIn(tokenProvider.getAccessTokenExpirationMsec() / 1000)
-                .build();
+            User user = (User) authentication.getPrincipal();
+            System.out.println("사용자 정보 로드: " + user.getEmail() + ", 역할: " + user.getRole());
+
+            String accessToken = tokenProvider.createAccessToken(user);
+            String refreshToken = tokenProvider.createRefreshToken(user);
+
+            System.out.println("로그인 토큰 생성 - 액세스 토큰: " + accessToken.substring(0, 20) + "...");
+            System.out.println("로그인 토큰 생성 - 리프레시 토큰: " + refreshToken.substring(0, 20) + "...");
+
+            // 리프레시 토큰은 쿠키에 저장
+            int refreshTokenMaxAge = (int) (tokenProvider.getRefreshTokenExpirationMsec() / 1000);
+            CookieUtils.addRefreshTokenCookie(response, refreshToken, refreshTokenMaxAge);
+
+            TokenResponse tokenResponse = TokenResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .tokenType("Bearer")
+                    .expiresIn(tokenProvider.getAccessTokenExpirationMsec() / 1000)
+                    .build();
+
+            System.out.println("토큰 응답 생성 완료");
+            return tokenResponse;
+        } catch (Exception e) {
+            System.err.println("로그인 처리 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
+            throw e;  // 원래 예외를 다시 던져서 정상적인 오류 처리 흐름 유지
+        }
     }
 
     // 회원가입 처리
@@ -149,6 +167,6 @@ public class AuthService {
     // 로그아웃 처리
     public void logout(HttpServletResponse response) {
         SecurityContextHolder.clearContext();
-        cookieUtils.deleteRefreshTokenCookie(response);
+        CookieUtils.deleteRefreshTokenCookie(response);
     }
 }

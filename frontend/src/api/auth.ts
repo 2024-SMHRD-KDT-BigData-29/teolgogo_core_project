@@ -105,8 +105,12 @@ export const login = async (emailOrData: string | LoginRequest, password?: strin
     
     // 토큰 저장
     const { accessToken, refreshToken } = response.data;
+    console.log("받은 토큰:", accessToken ? accessToken.substring(0, 20) + "..." : "없음");
+    console.log("받은 리프레시 토큰:", refreshToken ? refreshToken.substring(0, 20) + "..." : "없음");
     localStorage.setItem('token', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
     
     return response.data;
   } catch (error) {
@@ -176,7 +180,7 @@ export const getSocialLoginUrl = (providerOrOptions: 'google' | 'kakao' | 'naver
   if (typeof providerOrOptions === 'string') {
     provider = providerOrOptions;
     // 백엔드 서버 URL (api 접두사 포함 확인)
-    let baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    let baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
     
     // baseUrl에 /api가 없으면 추가 - 이 부분은 필요한지 확인 필요
     // if (!baseUrl.endsWith('/api')) {
@@ -226,10 +230,11 @@ export const unlinkSocialAccount = async (provider: string) => {
 
 // 현재 사용자 정보 가져오기 (getUserProfile과 동일한 기능, 이름만 다름)
 export const getCurrentUser = async (): Promise<UserInfo> => {
-  return getUserProfile();
+  return await getUserProfile();
 };
 
-export default {
+// 객체를 변수로 선언하고 내보내기
+const authApi = {
   login,
   signup,
   logout,
@@ -240,3 +245,5 @@ export default {
   linkSocialAccount,
   unlinkSocialAccount
 };
+
+export default authApi;

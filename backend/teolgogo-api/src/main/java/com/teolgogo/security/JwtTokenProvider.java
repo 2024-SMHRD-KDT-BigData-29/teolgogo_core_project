@@ -2,17 +2,20 @@ package com.teolgogo.security;
 
 import com.teolgogo.entity.User;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
-
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @Value("${app.auth.tokenSecret}")
@@ -23,6 +26,17 @@ public class JwtTokenProvider {
 
     @Value("${app.auth.refreshTokenExpirationMsec}")
     private long refreshTokenExpirationMsec;
+
+    // 안전한 JWT 키를 저장할 변수 추가
+    private SecretKey jwtSecretKey;
+
+    // 객체 생성 후 안전한 키 초기화
+    @PostConstruct
+    public void init() {
+        // 고정된 키를 사용하는 방식으로 변경
+        // 이 방식은 항상 같은 키를 사용하므로 애플리케이션이 재시작해도 토큰이 유효함
+        this.jwtSecretKey = Keys.hmacShaKeyFor(tokenSecret.getBytes());
+    }
 
     // 액세스 토큰 생성
     public String createAccessToken(User user) {
@@ -36,7 +50,7 @@ public class JwtTokenProvider {
                 .claim("name", user.getName())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, tokenSecret)
+                .signWith(jwtSecretKey) // SecretKey 객체 사용
                 .compact();
     }
 
@@ -51,18 +65,22 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshTokenExpirationMsec);
 
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setSubject(Long.toString(user.getId()))
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, tokenSecret)
+                .signWith(jwtSecretKey) // SecretKey 객체 사용
                 .compact();
+
+        System.out.println("리프레시 토큰 생성: " + user.getEmail() + " - " + token.substring(0, 20) + "...");
+        return token;
     }
 
     // 토큰에서 사용자 ID 추출
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(tokenSecret)
+        Claims claims = Jwts.parserBuilder() // 새로운 파서 빌더 API 사용
+                .setSigningKey(jwtSecretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
 
@@ -72,7 +90,10 @@ public class JwtTokenProvider {
     // 토큰 유효성 검증
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parser().setSigningKey(tokenSecret).parseClaimsJws(authToken);
+            Jwts.parserBuilder() // 새로운 파서 빌더 API 사용
+                    .setSigningKey(jwtSecretKey)
+                    .build()
+                    .parseClaimsJws(authToken);
             return true;
         } catch (SignatureException ex) {
             logger.error("유효하지 않은 JWT 서명입니다.");
@@ -90,8 +111,9 @@ public class JwtTokenProvider {
 
     // 토큰 만료 시간 확인
     public long getExpirationTime(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(tokenSecret)
+        Claims claims = Jwts.parserBuilder() // 새로운 파서 빌더 API 사용
+                .setSigningKey(jwtSecretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
 

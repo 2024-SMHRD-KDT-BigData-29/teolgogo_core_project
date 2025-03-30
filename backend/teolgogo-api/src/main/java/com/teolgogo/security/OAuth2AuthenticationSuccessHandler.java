@@ -68,7 +68,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         // 리프레시 토큰은 쿠키에 저장
         int refreshTokenMaxAge = (int) (tokenProvider.getRefreshTokenExpirationMsec() / 1000);
-        cookieUtils.addRefreshTokenCookie(response, refreshToken, refreshTokenMaxAge);
+        CookieUtils.addRefreshTokenCookie(response, refreshToken, refreshTokenMaxAge);
 
         // 액세스 토큰은 URL 파라미터로 전달
         return UriComponentsBuilder.fromUriString(targetUrl)

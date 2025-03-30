@@ -23,6 +23,7 @@ spring:
         format_sql: true
     show-sql: true
 
+
   # 시큐리티 설정
   security:
     oauth2:
@@ -68,9 +69,9 @@ spring:
 # 애플리케이션 설정
 app:
   auth:
-    tokenSecret: ${JWT_SECRET_KEY:털고고시크릿키12345678901234567890}
-    tokenExpirationMsec: 864000000
-    refreshTokenExpirationMsec: 2592000000
+    tokenSecret: abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz0123456789
+    tokenExpirationMsec: 86400000
+    refreshTokenExpirationMsec: 604800000
   oauth2:
     authorizedRedirectUris:
       - http://localhost:3000/oauth2/redirect
