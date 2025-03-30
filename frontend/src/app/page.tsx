@@ -9,9 +9,7 @@ import { useTheme } from '@/context/ThemeContext';
 import EnhancedKakaoMap from '@/components/map/EnhancedKakaoMap';
 import Navbar from '@/components/layout/Navbar';
 import AddToHomeScreen from '@/components/AddToHomeScreen';
-import Footer from '@/components/layout/Footer';
 import BeforeAfterReviewSlider from '@/components/slider/BeforeAfterReviewSlider';
-import './globals.css'; // 반드시 있어야 함
 
 
 // 서비스 유형 정의
@@ -47,9 +45,6 @@ const serviceSteps = [
 ];
 
 // 주요 서비스 소개 정의
-
-// 주요 서비스 소개 정의 (타입 안전성 향상)
-
 const mainFeatures = [
   {
     title: '지도 기능',
@@ -188,9 +183,9 @@ export default function Home() {
           />
         </div>
         
-        {/* 히어로 콘텐츠 */}
-        <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
-          <div className="w-full">
+        {/* 히어로 콘텐츠 - 반응형 컨테이너 적용 */}
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4 relative z-10">
+          <div className="w-full max-w-lg">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">
               내 주변 반려동물 미용 서비스, 간편하게 견적받고 예약하세요
             </h1>
@@ -213,22 +208,22 @@ export default function Home() {
               </p>
             )}
             
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <button 
                 onClick={handleQuotationRequest}
-                className="w-full py-4 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium rounded-lg transition text-lg"
+                className="w-full sm:w-auto sm:flex-grow py-4 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium rounded-lg transition text-lg"
               >
                 견적 요청하기
               </button>
               {!isAuthenticated && (
-                <div className="flex gap-3">
-                  <Link href="/login" className="w-1/2">
-                    <button className="w-full py-4 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-gray-600 transition">
+                <div className="flex gap-3 w-full sm:w-auto">
+                  <Link href="/login" className="w-1/2 sm:w-auto">
+                    <button className="w-full py-4 px-6 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-gray-600 transition">
                       로그인
                     </button>
                   </Link>
-                  <Link href="/signup" className="w-1/2">
-                    <button className="w-full py-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-gray-600 transition">
+                  <Link href="/signup" className="w-1/2 sm:w-auto">
+                    <button className="w-full py-4 px-6 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-gray-600 transition">
                       회원가입
                     </button>
                   </Link>
@@ -239,12 +234,12 @@ export default function Home() {
         </div>
       </section>
       
-      {/* 주요 서비스 소개 섹션 */}
+      {/* 주요 서비스 소개 섹션 - 반응형 컨테이너 적용 */}
       <section className="py-12 bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-800 dark:text-white">주요 서비스 소개</h2>
           
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {mainFeatures.map((feature, index) => (
                 feature.isClickable ? (
                   <Link 
@@ -276,15 +271,15 @@ export default function Home() {
         </div>
       </section>
       
-      {/* 서비스 유형 선택 섹션 */}
+      {/* 서비스 유형 선택 섹션 - 반응형 컨테이너 적용 */}
       <section className="py-12 bg-gray-50 dark:bg-gray-800">
-      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-center mb-4 text-gray-800 dark:text-white">반려동물을 위한 어떤 미용 서비스를 찾으시나요?</h2>
-          <p className="text-gray-600 dark:text-gray-300 text-center mx-auto mb-8">
+          <p className="text-gray-600 dark:text-gray-300 text-center mx-auto mb-8 max-w-2xl">
             원하시는 서비스 유형을 선택하시면 소중한 반려동물에게 맞는 맞춤형 견적을 받아보실 수 있습니다.
           </p>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {serviceTypes.map((service) => (
               <button
                 key={service.id}
@@ -306,15 +301,15 @@ export default function Home() {
         </div>
       </section>
       
-      {/* 지도 미리보기 섹션 */}
+      {/* 지도 미리보기 섹션 - 반응형 컨테이너 적용 */}
       <section className="py-12 bg-white dark:bg-gray-900" ref={mapRef}>
-      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
           <h2 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">내 주변 반려동물 미용업체</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6 text-center">
             현재 위치 기준으로 주변의 펫 미용 전문샵들을 살펴보세요.
           </p>
           
-          <div className="rounded-lg overflow-hidden shadow-lg mb-6 h-64">
+          <div className="rounded-lg overflow-hidden shadow-lg mb-6 h-64 sm:h-80 md:h-96">
             <EnhancedKakaoMap
               initialLatitude={userCoords.lat}
               initialLongitude={userCoords.lng}
@@ -322,18 +317,20 @@ export default function Home() {
             />
           </div>
           
-          <button
-            onClick={handleQuotationRequest}
-            className="w-full py-4 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium rounded-lg transition text-lg"
-          >
-            견적 요청하러 가기
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={handleQuotationRequest}
+              className="w-full md:w-auto md:px-8 py-4 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium rounded-lg transition text-lg"
+            >
+              견적 요청하러 가기
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* 미용 전/후 리뷰 슬라이더 섹션 */}
+      {/* 미용 전/후 리뷰 슬라이더 섹션 - 반응형 컨테이너 적용 */}
       <section className="py-12 bg-gray-50 dark:bg-gray-800" ref={reviewsRef}>
-        <div className="container mx-auto px-4" style={{ maxWidth: '900px' }}>
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
           <h2 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">고객님들의 생생한 미용 후기</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6 text-center">
             반려동물들의 변신을 확인해보세요!
@@ -342,19 +339,19 @@ export default function Home() {
         </div>
       </section>
       
-      {/* 서비스 이용 단계 섹션 */}
-      <section className="py-12 bg-gray-50 dark:bg-gray-800">
-      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
+      {/* 서비스 이용 단계 섹션 - 반응형 컨테이너 적용 */}
+      <section className="py-12 bg-white dark:bg-gray-900">
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-center mb-8 text-gray-800 dark:text-white">서비스 이용 방법</h2>
           
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {serviceSteps.map((step, index) => (
-              <div key={index} className="bg-white dark:bg-gray-700 rounded-xl shadow-sm p-4">
-                <div className="flex items-start">
-                  <div className="bg-primary-100 dark:bg-primary-800 w-8 h-8 rounded-full flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-lg shrink-0 mt-1">
+              <div key={index} className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm p-4 h-full">
+                <div className="flex items-start md:flex-col md:items-center">
+                  <div className="bg-primary-100 dark:bg-primary-800 w-10 h-10 rounded-full flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-lg shrink-0 mt-1 md:mb-4">
                     {index + 1}
                   </div>
-                  <div className="ml-4">
+                  <div className="ml-4 md:ml-0 md:text-center">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">{step.title}</h3>
                     <p className="text-gray-600 dark:text-gray-300 text-sm">{step.description}</p>
                   </div>
@@ -365,10 +362,10 @@ export default function Home() {
         </div>
       </section>
       
-      {/* 사용자 유형별 섹션 */}
-      <section className="py-12 bg-white dark:bg-gray-900">
-      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
-          <div className="space-y-4">
+      {/* 사용자 유형별 섹션 - 반응형 컨테이너 적용 */}
+      <section className="py-12 bg-gray-50 dark:bg-gray-800">
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* 반려동물 보호자용 */}
             <div className="bg-primary-50 dark:bg-primary-900 rounded-xl p-6 text-center">
               <h3 className="text-xl font-bold mb-3 text-gray-800 dark:text-white">반려동물 미용 서비스를 찾고 계신가요?</h3>
@@ -377,7 +374,7 @@ export default function Home() {
               </p>
               <button
                 onClick={handleQuotationRequest}
-                className="w-full py-3 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium rounded-lg transition"
+                className="w-full sm:w-auto px-6 py-3 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium rounded-lg transition"
               >
                 견적 요청하기
               </button>
@@ -390,7 +387,7 @@ export default function Home() {
                 새로운 반려동물 고객을 만나고 비즈니스를 성장시킬 기회입니다. 
               </p>
               <Link href="/signup?type=business">
-                <button className="w-full py-3 bg-secondary-600 hover:bg-secondary-700 dark:bg-secondary-500 dark:hover:bg-secondary-600 text-white font-medium rounded-lg transition">
+                <button className="w-full sm:w-auto px-6 py-3 bg-secondary-600 hover:bg-secondary-700 dark:bg-secondary-500 dark:hover:bg-secondary-600 text-white font-medium rounded-lg transition">
                   업체 등록하기
                 </button>
               </Link>
@@ -399,10 +396,10 @@ export default function Home() {
         </div>
       </section>
       
-      {/* 통계 섹션 */}
+      {/* 통계 섹션 - 반응형 컨테이너 적용 */}
       <section className="py-10 bg-gray-800 dark:bg-gray-900 text-white">
-      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
-          <div className="grid grid-cols-2 gap-4 text-center">
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="bg-gray-700 dark:bg-gray-800 p-4 rounded-lg">
               <p className="text-3xl font-bold mb-1">1,000+</p>
               <p className="text-sm text-gray-300">등록된 펫샵</p>
@@ -423,18 +420,20 @@ export default function Home() {
         </div>
       </section>
       
-      {/* CTA 섹션 (입점 업체 둘러보기로 변경) */}
+      {/* CTA 섹션 - 반응형 컨테이너 적용 */}
       <section className="py-10 bg-primary-600 dark:bg-primary-700 text-white">
-      <div className="container mx-auto px-4 max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full">
-          <h2 className="text-2xl font-bold mb-4">다양한 미용 전문가들을 만나보세요</h2>
-          <p className="text-lg mb-6 mx-auto">
-            털고고와 함께하는 수준 높은 미용 전문가들의 포트폴리오를 확인해보세요.
-          </p>
-          <Link href="/businesses">
-            <button className="w-full py-4 bg-white text-primary-600 hover:bg-primary-50 font-medium rounded-lg transition text-lg">
-              입점 업체 둘러보기
-            </button>
-          </Link>
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">다양한 미용 전문가들을 만나보세요</h2>
+            <p className="text-lg mb-6 max-w-2xl mx-auto">
+              털고고와 함께하는 수준 높은 미용 전문가들의 포트폴리오를 확인해보세요.
+            </p>
+            <Link href="/businesses">
+              <button className="w-full sm:w-auto px-8 py-4 bg-white text-primary-600 hover:bg-primary-50 font-medium rounded-lg transition text-lg">
+                입점 업체 둘러보기
+              </button>
+            </Link>
+          </div>
         </div>
       </section>
       

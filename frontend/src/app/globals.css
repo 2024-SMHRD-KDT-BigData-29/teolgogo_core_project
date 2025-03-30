@@ -1,45 +1,93 @@
 @import "tailwindcss";
 
+/* 테마 전환 애니메이션 */
+html {
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+html * {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 :root {
-  /* 선명하고 깨끗한 파란색 계열 배경 */
-  --background: #EFF6FF;        /* 매우 밝은 파란 배경 */
-  --background-secondary: #E7F0FE; /* 약간 더 진한 파란 배경 */
-  --foreground: #000000;        /* 순수한 검정 */
-  --foreground-secondary: #333333; /* 진한 그레이 */
+  /* 카독 스타일 라이트 모드 */
+  --background: #FFFFFF;        /* 순수한 흰색 배경 */
+  --background-secondary: #F5F7FC; /* 매우 연한 블루 그레이 배경 */
+  --foreground: #333333;        /* 진한 차콜 그레이 */
+  --foreground-secondary: #666666; /* 중간 그레이 텍스트 */
   --card-background: #FFFFFF;   /* 순수한 흰색 카드 배경 */
-  --border-color: #E0E0E0;      /* 연한 회색 테두리 */
+  --border-color: #E5E9F2;      /* 연한 블루 그레이 테두리 */
   
-  /* 주요 강조 색상 - 더 선명하게 */
-  --color-primary-500: #1A73E8;  /* 선명한 블루 */
-  --color-primary-600: #1557B0;  /* 더 진한 블루 */
-  --color-primary-400: #4285F4;  /* 밝은 블루 */
+  /* 카독 스타일 프라이머리 색상 - 파란색 계열 */
+  --color-primary-50: #F0F7FF;
+  --color-primary-100: #DBEEFF;
+  --color-primary-200: #B1D6FF;
+  --color-primary-300: #7AB7FF;
+  --color-primary-400: #4C9AFF;
+  --color-primary-500: #3D7EF7;  /* 카독 메인 블루 */
+  --color-primary-600: #1E56A0;  /* 카독 진한 블루 */
+  --color-primary-700: #173E78;
+  --color-primary-800: #102B54;
+  --color-primary-900: #091C36;
   
-  /* 상태 색상 */
-  --success: #4CAF50;    /* 선명한 초록색 */
-  --error: #F44336;      /* 선명한 빨간색 */
-  --warning: #FF9800;    /* 선명한 주황색 */
+  /* 카독 스타일 세컨더리 색상 - 그레이 계열 */
+  --color-secondary-50: #F5F7FC;
+  --color-secondary-100: #EEF1F8;
+  --color-secondary-200: #E5E9F2;
+  --color-secondary-300: #D4DAE6;
+  --color-secondary-400: #B4BDD3;
+  --color-secondary-500: #8896B9;
+  --color-secondary-600: #616F94;
+  --color-secondary-700: #4D5775;
+  --color-secondary-800: #303952;
+  --color-secondary-900: #1E2436;
+  
+  /* 상태 색상 - 카독 스타일 */
+  --success: #00BA88;    /* 카독 그린 */
+  --error: #F53F4C;      /* 카독 레드 */
+  --warning: #FFAB2F;    /* 카독 오렌지 */
 }
 
-/* 다크 모드 색상 팔레트 */
+/* 카독 스타일 다크 모드 */
 .dark {
-  --background: #0F172A;        /* 깊은 남색 배경 */
-  --background-secondary: #1E293B; /* 약간 밝은 남색 배경 */
-  --foreground: #FFFFFF;        /* 순수한 흰색 */
-  --foreground-secondary: #B0B0B0; /* 밝은 회색 */
-  --card-background: #1E1E1E;   /* 약간 밝은 어두운 배경 */
-  --border-color: #333333;      /* 어두운 테두리 */
+  --background: #101F36;        /* 카독 다크 네이비 배경 */
+  --background-secondary: #172B4D; /* 약간 밝은 다크 네이비 */
+  --foreground: #F5F7FC;        /* 매우 밝은 그레이블루 */
+  --foreground-secondary: #B4BDD3; /* 약간 밝은 블루그레이 */
+  --card-background: #172B4D;   /* 약간 밝은 카드 배경 */
+  --border-color: #293E66;      /* 중간 블루 테두리 */
   
-  --color-primary-500: #4285F4;  /* 밝은 블루 */
-  --color-primary-600: #1A73E8;  /* 중간 블루 */
-  --color-primary-400: #67A4FC;  /* 더 밝은 블루 */
+  /* 다크 모드 프라이머리 색상 - 더 밝은 파란색으로 가독성 향상 */
+  --color-primary-50: #101F36;
+  --color-primary-100: #172B4D;
+  --color-primary-200: #1E3666;
+  --color-primary-300: #254380;
+  --color-primary-400: #3359A5;
+  --color-primary-500: #5A8AE8;  /* 밝은 파란색 - 가독성 */
+  --color-primary-600: #7AA8FF;  /* 더 밝은 파란색 */
+  --color-primary-700: #A1C3FF;
+  --color-primary-800: #C8DDFF;
+  --color-primary-900: #E4EFFF;
   
-  /* 상태 색상 */
-  --success: #81C784;    /* 밝은 초록색 */
-  --error: #E57373;      /* 밝은 빨간색 */
-  --warning: #FFB74D;    /* 밝은 주황색 */
+  /* 다크 모드 세컨더리 색상 */
+  --color-secondary-50: #101F36;
+  --color-secondary-100: #172B4D;
+  --color-secondary-200: #1E3666;
+  --color-secondary-300: #254380;
+  --color-secondary-400: #3359A5;
+  --color-secondary-500: #5A8AE8;
+  --color-secondary-600: #7AA8FF;
+  --color-secondary-700: #A1C3FF;
+  --color-secondary-800: #C8DDFF;
+  --color-secondary-900: #E4EFFF;
+  
+  /* 다크 모드 상태 색상 - 더 밝게 */
+  --success: #34EAB9;    /* 밝은 그린 */
+  --error: #FF7F89;      /* 밝은 레드 */
+  --warning: #FFC876;    /* 밝은 오렌지 */
 }
 
-/* 기본 본문 스타일 - 최적화된 렌더링 */
+/* 기본 본문 스타일 - 카독 스타일 */
 body {
   background: var(--background);
   color: var(--foreground);
@@ -58,6 +106,56 @@ body {
   text-size-adjust: 100%;
 }
 
+/* 버튼 스타일 재정의 - 카독 스타일 */
+.btn, 
+button[class*="bg-primary"],
+a[class*="bg-primary"] {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 기본 버튼 - 카독 스타일 */
+.btn-primary,
+.bg-primary-600,
+.bg-primary-500,
+.hover\:bg-primary-600:hover,
+.hover\:bg-primary-700:hover,
+.dark\:bg-primary-500,
+.dark\:bg-primary-600,
+.dark\:hover\:bg-primary-500:hover,
+.dark\:hover\:bg-primary-600:hover {
+  color: white !important;
+  background-color: var(--color-primary-500) !important;
+  border: none !important;
+}
+
+.btn-primary:hover,
+.dark .btn-primary:hover {
+  background-color: var(--color-primary-600) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* 텍스트 버튼 - 카독 스타일 */
+.btn-text,
+.text-primary-600,
+.text-primary-500,
+.hover\:text-primary-600:hover,
+.hover\:text-primary-700:hover,
+.dark\:text-primary-500,
+.dark\:text-primary-400 {
+  color: var(--color-primary-500) !important;
+}
+
+.dark .btn-text,
+.dark .text-primary-600,
+.dark .text-primary-500 {
+  color: var(--color-primary-600) !important;
+}
+
 /* 섹션 배경 스타일 */
 .section-background {
   background-color: var(--background);
@@ -67,17 +165,64 @@ body {
   background-color: var(--background-secondary);
 }
 
-/* 통계 섹션 및 푸터 배경 */
+/* 카독 스타일 카드 */
+.card, 
+div[class*="bg-white"], 
+div[class*="bg-gray-50"],
+div[class*="dark:bg-gray-800"] {
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.card:hover,
+div[class*="bg-white"]:hover,
+div[class*="bg-gray-50"]:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* 통계 섹션 및 푸터 배경 - 카독 스타일 */
 .statistics-section,
 .footer-section {
   background-color: var(--background-secondary);
   color: var(--foreground);
 }
 
-/* 나머지 기존 CSS 코드 유지 */
-/* (이전에 제공된 나머지 CSS 코드를 그대로 유지) */
+/* 카독 스타일 입력 필드 */
+input, select, textarea {
+  background-color: var(--background);
+  color: var(--foreground);
+  border-color: var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.625rem 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
 
-/* 다크 모드에서의 섹션 배경 */
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-primary-400);
+  box-shadow: 0 0 0 3px rgba(61, 126, 247, 0.15);
+  outline: none;
+}
+
+.dark input, .dark select, .dark textarea {
+  background-color: var(--card-background);
+  color: var(--foreground);
+  border-color: var(--border-color);
+}
+
+.dark input:focus, .dark select:focus, .dark textarea:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(90, 138, 232, 0.25);
+}
+
+/* 컨테이너에 패딩 추가 - 카독 스타일 */
+.container {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+/* 다크 모드 추가 스타일 */
 .dark .section-background {
   background-color: var(--background);
 }

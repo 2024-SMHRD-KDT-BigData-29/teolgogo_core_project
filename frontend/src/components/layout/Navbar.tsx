@@ -1,11 +1,9 @@
-// components/layout/Navbar.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { logout } from '@/api/auth';
 import ThemeToggle from '../common/ThemeToggle';
 
 interface NavbarProps {
@@ -13,17 +11,50 @@ interface NavbarProps {
 }
 
 export default function Navbar({ scrollToSection }: NavbarProps) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth(); // AuthContext의 logout 함수 직접 사용
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
-  // 로그아웃 처리
+  // 외부 클릭 감지를 위한 이벤트 리스너
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // 모바일 메뉴 닫기
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+      // 프로필 메뉴 닫기
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    // ESC 키로 메뉴 닫기
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false);
+        setProfileMenuOpen(false);
+      }
+    };
+
+    // 이벤트 리스너 등록
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    // 정리 함수
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
+  // 로그아웃 처리 - AuthContext의 logout 함수 활용
   const handleLogout = () => {
-    logout();
-    router.push('/login');
-    // 페이지 새로고침 (인증 상태 업데이트를 위해)
-    window.location.reload();
+    setProfileMenuOpen(false);
+    setIsMenuOpen(false);
+    logout(); // 이미 AuthContext의 logout 함수에 router.push('/login') 로직이 포함되어 있음
   };
 
   // 메뉴 항목을 클릭하여 특정 섹션으로 스크롤
@@ -48,13 +79,14 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
 
   return (
     <nav className="bg-white dark:bg-gray-900 shadow-md transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 반응형 컨테이너 적용 - 다른 컴포넌트와 일관성 유지 */}
+      <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16">
           <div className="flex">
             {/* 로고 및 홈 링크 */}
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="text-xl font-bold text-primary-600 dark:text-primary-400">
-                텔고고
+                털고고
               </Link>
             </div>
             
@@ -76,7 +108,7 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
                 href="/recommendation"
                 className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700"
               >
-                펫 미용 스타일 AI 추천 받아보세요!
+                펫 미용 스타일 AI 추천
               </Link>
               <button
                 onClick={() => handleSectionClick('reviews')}
@@ -93,12 +125,14 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
             <ThemeToggle className="mr-2" />
             
             {isAuthenticated ? (
-              <div className="relative ml-3">
+              <div className="relative ml-3" ref={profileMenuRef}>
                 <div>
                   <button
                     type="button"
                     className="flex text-sm rounded-full focus:outline-none"
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                    aria-expanded={profileMenuOpen}
+                    aria-haspopup="true"
                   >
                     <span className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700">
                       {user?.name || '사용자'}
@@ -133,10 +167,7 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
                       </Link>
                     )}
                     <button
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        handleLogout();
-                      }}
+                      onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       로그아웃
@@ -171,6 +202,7 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
               type="button"
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-expanded={isMenuOpen}
             >
               <span className="sr-only">메뉴 열기</span>
               {/* 햄버거 아이콘 */}
@@ -185,7 +217,7 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
+                  d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                 />
               </svg>
             </button>
@@ -195,7 +227,7 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
       
       {/* 모바일 메뉴 */}
       {isMenuOpen && (
-        <div className="sm:hidden">
+        <div className="sm:hidden" ref={menuRef}>
           <div className="pt-2 pb-3 space-y-1">
             <Link
               href="/"
@@ -257,10 +289,7 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
                   </Link>
                 )}
                 <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    handleLogout();
-                  }}
+                  onClick={handleLogout}
                   className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
                 >
                   로그아웃

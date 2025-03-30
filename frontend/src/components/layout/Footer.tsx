@@ -10,7 +10,8 @@ export default function Footer() {
 
   return (
     <footer className="bg-gray-900 dark:bg-gray-950 text-gray-300 dark:text-gray-400">
-      <div className="container mx-auto px-4 py-8" style={{ maxWidth: '500px' }}>
+      {/* 인라인 스타일 제거하고 반응형 컨테이너 클래스 적용 */}
+      <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4 py-8">
         {/* 로고 및 설명 */}
         <div className="text-center mb-6">
           <Link href="/" className="inline-flex items-center mb-4 justify-center">

@@ -6,7 +6,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import Script from 'next/script';
 import Footer from '@/components/layout/Footer';
-import './globals.css'; // 반드시 있어야 함
+import './globals.css';
 
 
 // Inter 폰트 설정 (variable 속성 추가)
@@ -75,7 +75,8 @@ export default function RootLayout({
         }} />
       </head>
       <body className={`flex flex-col min-h-screen ${inter.className}`}>
-      <div className="w-full max-w-full sm:max-w-full md:max-w-full lg:max-w-full xl:max-w-full mx-auto flex-grow">
+        {/* 전체 범위가 제한된 최대 너비 컨테이너 */}
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex-grow">
           <AuthProvider>
             <ThemeProvider>
               <MainProvider>
@@ -85,8 +86,10 @@ export default function RootLayout({
           </AuthProvider>
         </div>
         
-        {/* 푸터 */}
-        <Footer />
+        {/* 푸터도 컨테이너로 감싸기 */}
+        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
+          <Footer />
+        </div>
         
         {/* 서비스 워커 등록 스크립트 */}
         <Script id="register-sw" strategy="afterInteractive">

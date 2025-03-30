@@ -52,8 +52,9 @@ const handleLogout = async () => {
 };
   
   return (
-    <header className="bg-white shadow-sm">
-      <div className="container mx-auto px-4" style={{ maxWidth: '500px' }}>
+    <header className="bg-white dark:bg-gray-900 shadow-sm">
+      {/* 반응형 컨테이너 적용 */}
+      <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-14">
           {/* 로고 */}
           <Link href="/" className="flex items-center">
@@ -65,25 +66,25 @@ const handleLogout = async () => {
                 objectFit="contain"
               />
             </div>
-            <span className="text-lg font-bold text-blue-600">털고고</span>
+            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">털고고</span>
           </Link>
           
           {/* 데스크톱 메뉴 */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/quotation/new" className="text-gray-700 hover:text-blue-600 transition">
+            <Link href="/quotation/new" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">
               견적 요청하기
             </Link>
             {user && (
               <>
-                <Link href="/dashboard" className="text-gray-700 hover:text-blue-600 transition">
+                <Link href="/dashboard" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">
                   {user.role === 'BUSINESS' ? '펫샵 대시보드' : '내 견적 관리'}
                 </Link>
-                <Link href="/chat" className="text-gray-700 hover:text-blue-600 transition">
+                <Link href="/chat" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">
                   채팅
                 </Link>
               </>
             )}
-            <Link href="/help" className="text-gray-700 hover:text-blue-600 transition">
+            <Link href="/help" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">
               이용 가이드
             </Link>
           </nav>
@@ -91,20 +92,20 @@ const handleLogout = async () => {
           {/* 데스크톱 로그인/회원가입 또는 프로필 */}
           <div className="hidden md:flex items-center">
             {loading ? (
-              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+              <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
             ) : user ? (
               <div className="relative">
                 <button 
                   className="flex items-center space-x-2"
                   onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                 >
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-medium">
                     {user.name.charAt(0)}
                   </div>
-                  <span className="text-gray-700">{user.name}</span>
+                  <span className="text-gray-700 dark:text-gray-200">{user.name}</span>
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
-                    className="h-5 w-5 text-gray-400" 
+                    className="h-5 w-5 text-gray-400 dark:text-gray-500" 
                     viewBox="0 0 20 20" 
                     fill="currentColor"
                   >
@@ -118,16 +119,16 @@ const handleLogout = async () => {
                 
                 {/* 프로필 드롭다운 메뉴 */}
                 {profileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-md shadow-lg z-20">
+                  <div className="absolute right-0 mt-2 w-48 py-2 bg-white dark:bg-gray-800 rounded-md shadow-lg z-20">
                     <Link 
                       href="/profile" 
-                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                       onClick={() => setProfileMenuOpen(false)}
                     >
                       프로필 설정
                     </Link>
                     <button 
-                      className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      className="w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                       onClick={handleLogout}
                     >
                       로그아웃
@@ -139,13 +140,13 @@ const handleLogout = async () => {
               <div className="flex items-center space-x-4">
                 <Link 
                   href="/login" 
-                  className="text-gray-700 hover:text-blue-600 transition"
+                  className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
                 >
                   로그인
                 </Link>
                 <Link 
                   href="/signup" 
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+                  className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
                 >
                   회원가입
                 </Link>
@@ -160,7 +161,7 @@ const handleLogout = async () => {
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              className="h-6 w-6 text-gray-700" 
+              className="h-6 w-6 text-gray-700 dark:text-gray-200" 
               fill="none" 
               viewBox="0 0 24 24" 
               stroke="currentColor"
@@ -186,11 +187,11 @@ const handleLogout = async () => {
         
         {/* 모바일 메뉴 */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t">
+          <div className="md:hidden py-4 border-t dark:border-gray-700">
             <nav className="flex flex-col space-y-4">
               <Link 
                 href="/quotation/new" 
-                className="text-gray-700 hover:text-blue-600 transition"
+                className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 견적 요청하기
@@ -199,14 +200,14 @@ const handleLogout = async () => {
                 <>
                   <Link 
                     href="/dashboard" 
-                    className="text-gray-700 hover:text-blue-600 transition"
+                    className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {user.role === 'BUSINESS' ? '펫샵 대시보드' : '내 견적 관리'}
                   </Link>
                   <Link 
                     href="/chat" 
-                    className="text-gray-700 hover:text-blue-600 transition"
+                    className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     채팅
@@ -215,24 +216,24 @@ const handleLogout = async () => {
               )}
               <Link 
                 href="/help" 
-                className="text-gray-700 hover:text-blue-600 transition"
+                className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 이용 가이드
               </Link>
               
               {!user && (
-                <div className="pt-4 border-t">
+                <div className="pt-4 border-t dark:border-gray-700">
                   <Link 
                     href="/login" 
-                    className="block w-full text-center py-2 text-gray-700 hover:text-blue-600 transition"
+                    className="block w-full text-center py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     로그인
                   </Link>
-                                      <Link 
+                  <Link 
                     href="/signup" 
-                    className="block w-full text-center mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
+                    className="block w-full text-center mt-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-2 rounded-lg transition"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     회원가입
@@ -241,16 +242,16 @@ const handleLogout = async () => {
               )}
               
               {user && (
-                <div className="pt-4 border-t">
+                <div className="pt-4 border-t dark:border-gray-700">
                   <Link 
                     href="/profile" 
-                    className="block w-full text-center py-2 text-gray-700 hover:text-blue-600 transition"
+                    className="block w-full text-center py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     프로필 설정
                   </Link>
                   <button 
-                    className="block w-full text-center mt-2 py-2 text-red-600 hover:text-red-700 transition"
+                    className="block w-full text-center mt-2 py-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition"
                     onClick={() => {
                       handleLogout();
                       setMobileMenuOpen(false);
