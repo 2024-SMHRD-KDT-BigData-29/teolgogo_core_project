@@ -37,9 +37,16 @@ public class AuthController {
         return ResponseEntity.ok(tokenResponse);
     }
 
-    // 회원가입 API
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest signupRequest) {
+        // 약관 동의 검증
+        if (signupRequest.getAgreeTerms() == null || !signupRequest.getAgreeTerms() ||
+                signupRequest.getAgreePrivacy() == null || !signupRequest.getAgreePrivacy()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "이용약관 및 개인정보 처리방침에 동의해주세요.");
+            return ResponseEntity.badRequest().body(response);
+        }
+
         User user = authService.signup(signupRequest);
 
         Map<String, Object> response = new HashMap<>();

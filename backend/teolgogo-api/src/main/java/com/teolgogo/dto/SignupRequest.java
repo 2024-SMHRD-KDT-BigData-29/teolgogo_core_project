@@ -27,13 +27,19 @@ public class SignupRequest {
     @Size(min = 8, message = "비밀번호는 최소 8자 이상이어야 합니다.")
     private String password;
 
+    // 전화번호는 필수가 아님 (프론트엔드에서도 필수가 아님)
     @Pattern(regexp = "^\\d{10,11}$", message = "핸드폰 번호는 10~11자리 숫자여야 합니다.")
     private String phone;
 
+    // 회원 역할 (CUSTOMER 또는 BUSINESS)
     private User.Role role;
 
     // 업체 회원을 위한 추가 정보
     private String businessName;
     private String businessDescription;
     private String businessLicense;
+
+    // 약관 동의 필드 추가 (프론트엔드에서 체크하지만 백엔드에서도 검증 필요)
+    private Boolean agreeTerms;
+    private Boolean agreePrivacy;
 }

@@ -71,28 +71,42 @@ public class AuthService {
     // 회원가입 처리
     @Transactional
     public User signup(SignupRequest signupRequest) {
+        System.out.println("회원가입 요청 받음: " + signupRequest.getEmail());
+
         // 이메일 중복 확인
-        if (userRepository.existsByEmail(signupRequest.getEmail())) {
+        boolean exists = userRepository.existsByEmail(signupRequest.getEmail());
+        System.out.println("이메일 중복 여부: " + exists);
+
+        if (exists) {
+            System.out.println("이미 사용 중인 이메일: " + signupRequest.getEmail());
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
 
-        // 사용자 객체 생성
-        User user = User.builder()
-                .name(signupRequest.getName())
-                .email(signupRequest.getEmail())
-                .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .role(signupRequest.getRole() != null ? signupRequest.getRole() : User.Role.CUSTOMER)
-                .provider(User.AuthProvider.LOCAL)
-                .build();
+        try {
+            // 사용자 객체 생성
+            User user = User.builder()
+                    .name(signupRequest.getName())
+                    .email(signupRequest.getEmail())
+                    .password(passwordEncoder.encode(signupRequest.getPassword()))
+                    .role(signupRequest.getRole() != null ? signupRequest.getRole() : User.Role.CUSTOMER)
+                    .provider(User.AuthProvider.LOCAL)
+                    .build();
 
-        // 업체 회원인 경우 추가 정보 설정
-        if (user.getRole() == User.Role.BUSINESS) {
-            user.setBusinessName(signupRequest.getBusinessName());
-            user.setBusinessDescription(signupRequest.getBusinessDescription());
-            user.setBusinessLicense(signupRequest.getBusinessLicense());
+            // 업체 회원인 경우 추가 정보 설정
+            if (user.getRole() == User.Role.BUSINESS) {
+                user.setBusinessName(signupRequest.getBusinessName());
+                user.setBusinessDescription(signupRequest.getBusinessDescription());
+                user.setBusinessLicense(signupRequest.getBusinessLicense());
+            }
+
+            User savedUser = userRepository.save(user);
+            System.out.println("사용자 저장 성공: " + savedUser.getId());
+            return savedUser;
+        } catch (Exception e) {
+            System.err.println("사용자 저장 실패: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-
-        return userRepository.save(user);
     }
 
     // 리프레시 토큰으로 새 액세스 토큰 발급
