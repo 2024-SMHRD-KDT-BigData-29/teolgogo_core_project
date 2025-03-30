@@ -60,7 +60,7 @@ export interface QuoteRequestDetails {
   myOffers?: QuoteResponse[]; // 업체용
 }
 
-// 견적 요청 생성 함수 (파일 업로드 지원)
+// 견적 요청 생성 함수
 export const createQuotationRequest = async (requestData: CreateQuoteRequest | any, petPhotos?: File[]) => {
   try {
     // FormData를 사용하는 경우 (파일 업로드가 있을 때)
@@ -84,7 +84,7 @@ export const createQuotationRequest = async (requestData: CreateQuoteRequest | a
       return response.data;
     } else {
       // 일반 JSON 요청 (파일 업로드가 없을 때)
-      const response = await apiClient.post('/quotation/requests', requestData);
+      const response = await apiClient.post('/quotes/requests', requestData);
       return response.data;
     }
   } catch (error) {
@@ -96,7 +96,7 @@ export const createQuotationRequest = async (requestData: CreateQuoteRequest | a
 // 견적 요청 목록 가져오기
 export const getQuotationRequests = async (params = {}) => {
   try {
-    const response = await apiClient.get('/quotation/requests', { params });
+    const response = await apiClient.get('/quotes/requests', { params }); // '/quotation/requests'에서 변경
     return response.data;
   } catch (error) {
     console.error('견적 요청 목록 가져오기 실패:', error);
@@ -118,7 +118,7 @@ export const getCustomerQuoteRequests = async () => {
 // 견적 요청 상세 정보 가져오기
 export const getQuotationRequest = async (id: string | number) => {
   try {
-    const response = await apiClient.get(`/quotation/requests/${id}`);
+    const response = await apiClient.get(`/quotes/requests/${id}`); // `/quotation/requests/${id}`에서 변경
     return response.data;
   } catch (error) {
     console.error('견적 요청 상세 정보 가져오기 실패:', error);
@@ -162,7 +162,7 @@ export const getAvailableQuoteRequests = async (
 // 견적 제안하기 (업체용)
 export const createQuotationOffer = async (requestId: string | number, offerData: any | Partial<QuoteResponse>) => {
   try {
-    const response = await apiClient.post(`/quotation/requests/${requestId}/offers`, offerData);
+    const response = await apiClient.post(`/quotes/requests/${requestId}/offers`, offerData); // `/quotation/requests/${requestId}/offers`에서 변경
     return response.data;
   } catch (error) {
     console.error('견적 제안 실패:', error);
@@ -173,7 +173,7 @@ export const createQuotationOffer = async (requestId: string | number, offerData
 // 견적 수락하기 (고객용)
 export const acceptQuotationOffer = async (requestId: string | number, offerId: string | number) => {
   try {
-    const response = await apiClient.post(`/quotation/requests/${requestId}/offers/${offerId}/accept`);
+    const response = await apiClient.post(`/quotes/requests/${requestId}/offers/${offerId}/accept`); // `/quotation/requests/${requestId}/offers/${offerId}/accept`에서 변경
     return response.data;
   } catch (error) {
     console.error('견적 수락 실패:', error);

@@ -16,11 +16,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/quotes")
+@RequestMapping("/api/quotes")
 public class QuoteController {
 
     private final QuoteService quoteService;
@@ -48,6 +51,31 @@ public class QuoteController {
 
         return ResponseEntity.ok(createdRequest);
     }
+
+    /**
+     * 새 견적 요청 템플릿 제공
+     */
+    @GetMapping("/requests/new")
+    public ResponseEntity<Map<String, Object>> getNewQuoteRequestTemplate() {
+        // 견적 요청 양식을 위한 초기 데이터 제공
+        Map<String, Object> template = new HashMap<>();
+
+        // 기본 견적 요청 템플릿 데이터
+        template.put("petType", "DOG");
+        template.put("serviceType", "BASIC");
+
+        // 서비스 항목 타입 옵션
+        List<Map<String, String>> itemTypes = new ArrayList<>();
+        itemTypes.add(Map.of("value", "BASIC_GROOMING", "label", "기본 미용"));
+        itemTypes.add(Map.of("value", "SPECIAL_CARE", "label", "스페셜 케어"));
+        itemTypes.add(Map.of("value", "BATH", "label", "목욕"));
+        // 기타 항목 타입 추가...
+
+        template.put("itemTypes", itemTypes);
+
+        return ResponseEntity.ok(template);
+    }
+
 
     // 견적 요청 목록 조회 (고객용)
     @GetMapping("/customer/requests")

@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation'; // useRouter 추가
 import { getQuotationRequest } from '@/api/quotation';
 import EnhancedKakaoMap from '@/components/map/EnhancedKakaoMap';
 import QuotationOffersList from '@/components/quotation/QuotationOffersList';
@@ -34,6 +34,7 @@ interface QuotationOffer {
 
 export default function QuotationRequestDetailPage() {
   const { id } = useParams(); // URL에서 견적 요청 ID 가져오기
+  const router = useRouter(); // router 초기화 추가
   const [request, setRequest] = useState<QuotationRequest | null>(null);
   const [offers, setOffers] = useState<QuotationOffer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,6 +45,13 @@ export default function QuotationRequestDetailPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
+        
+        // 'new'인 경우 견적 작성 페이지로 리다이렉트
+        if (id === 'new') {
+          router.push('/quotes/create');
+          return;
+        }
+        
         const data = await getQuotationRequest(id as string);
         setRequest(data.request);
         setOffers(data.offers || []);
@@ -56,7 +64,7 @@ export default function QuotationRequestDetailPage() {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, router]);
 
   if (loading) {
     return <LoadingSpinner />;

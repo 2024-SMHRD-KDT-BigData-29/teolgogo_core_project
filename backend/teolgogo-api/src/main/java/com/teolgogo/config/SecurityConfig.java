@@ -76,6 +76,8 @@ public class SecurityConfig {
                         .requestMatchers("/static/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll() // 이 라인 추가
+                        .requestMatchers("/quotes/**").permitAll() // 이 라인 추가
+                        .requestMatchers("/quotation/**").permitAll() // 이 라인 추가 (임시)
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .anyRequest().authenticated()
