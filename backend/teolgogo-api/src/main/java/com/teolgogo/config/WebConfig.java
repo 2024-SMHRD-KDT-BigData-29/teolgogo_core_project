@@ -2,6 +2,7 @@ package com.teolgogo.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -26,5 +27,14 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/icons/**")
                 .addResourceLocations("classpath:/static/icons/")
                 .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS));
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")  // 모든 경로에 대해
+                .allowedOrigins("http://localhost:3000")  // 프론트엔드 서버 주소
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // 허용할 HTTP 메서드
+                .allowedHeaders("*")  // 모든 헤더 허용
+                .allowCredentials(true);  // 쿠키 허용
     }
 }

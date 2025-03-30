@@ -5,8 +5,8 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { getUserFriendlyErrorMessage } from '@/utils/errorHandling';
 
-// API 기본 설정
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+// API 기본 설정 - '/api' 접미사 제거
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 // 요청 중인 토큰 갱신 Promise를 저장
 let refreshTokenPromise: Promise<string> | null = null;
@@ -32,6 +32,8 @@ const apiClient = axios.create({
   },
   // 타임아웃 설정 (15초)
   timeout: 15000,
+  // CORS 인증 정보 포함
+  withCredentials: true,
 });
 
 // 로딩 이벤트 설정 함수
@@ -63,6 +65,9 @@ apiClient.interceptors.request.use(
       if (loadingEvents.onRequestStart && config.url) {
         loadingEvents.onRequestStart(config.url);
       }
+
+      // 요청 URL 디버깅 로그
+      console.log('API 요청 URL:', `${API_URL}${config.url}`);
 
       // 토큰 추가
       const token = localStorage.getItem('token');
@@ -110,6 +115,22 @@ apiClient.interceptors.response.use(
         loadingEvents.onError(error);
       }
       return Promise.reject(error);
+    }
+
+    // 에러 상세 정보 출력
+    if (error.response) {
+      console.error('API 오류 응답:', {
+        status: error.response.status,
+        url: error.config?.url,
+        data: error.response.data
+      });
+    } else if (error.request) {
+      console.error('응답 없음:', {
+        url: error.config?.url,
+        method: error.config?.method
+      });
+    } else {
+      console.error('요청 설정 오류:', error.message);
     }
 
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
@@ -176,6 +197,7 @@ const refreshAccessToken = async (): Promise<string> => {
       throw new Error('리프레시 토큰이 없습니다');
     }
     
+    // '/api' 접두사 제거
     const response = await axios.post(`${API_URL}/auth/refresh`, null, {
       withCredentials: true,
       headers: {

@@ -7,9 +7,17 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import PetStyleRecommendation from '@/components/ai/PetStyleRecommendation';
+// PetStyleRecommendation 컴포넌트를 동적으로 import하여 서버사이드 렌더링 방지
+import dynamic from 'next/dynamic';
 import Navbar from '@/components/layout/Navbar';
 import Link from 'next/link';
+
+// PetStyleRecommendation 컴포넌트를 클라이언트 사이드에서만 로드하도록 설정
+// 이렇게 하면 OpenCV.js가 서버에서 로드되지 않아 "IntVector" 등록 충돌 문제 방지
+const PetStyleRecommendation = dynamic(
+  () => import('@/components/ai/PetStyleRecommendation'),
+  { ssr: false } // 서버 사이드 렌더링 비활성화
+);
 
 // 미용 스타일 타입 정의
 interface GroomingStyle {
@@ -83,13 +91,18 @@ export default function RecommendationPage() {
     }
     
     // 견적 요청 페이지로 이동하며 선택한 스타일 정보 전달
-    // 스타일 데이터를 쿼리 파라미터와 세션 스토리지에 저장하여 견적 요청 페이지에서 사용할 수 있게 함
     if (selectedStyle) {
-      // 세션 스토리지에 스타일 정보 저장
-      sessionStorage.setItem('recommendedStyle', JSON.stringify(selectedStyle));
-      
-      // 견적 요청 페이지로 이동
-      router.push(`/quotation/new?style=${selectedStyle.id}&pet_type=${selectedStyle.petType}`);
+      try {
+        // 세션 스토리지에 스타일 정보 저장
+        sessionStorage.setItem('recommendedStyle', JSON.stringify(selectedStyle));
+        
+        // 견적 요청 페이지로 이동
+        router.push(`/quotation/new?style=${selectedStyle.id}&pet_type=${selectedStyle.petType}`);
+      } catch (error) {
+        console.error('스타일 정보 저장 오류:', error);
+        // 오류 발생 시에도 기본 페이지로는 이동
+        router.push('/quotation/new');
+      }
     } else {
       // 스타일 미선택 시 기본 견적 요청 페이지로 이동
       router.push('/quotation/new');
@@ -112,8 +125,9 @@ export default function RecommendationPage() {
           </p>
         </div>
         
-        {/* AI 추천 컴포넌트 */}
+        {/* AI 추천 컴포넌트 - 에러 방지를 위해 try-catch로 감싸기 */}
         <div className="mb-8">
+          {/* 클라이언트 사이드에서만 렌더링되도록 동적으로 import된 컴포넌트 */}
           <PetStyleRecommendation onSelectStyle={handleStyleSelect} />
         </div>
         

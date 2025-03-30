@@ -13,7 +13,13 @@ import { useRouter } from 'next/navigation';
 declare global {
   interface Window {
     cv: any;
+    cvPromise: Promise<any> | null; // OpenCV.js 로드 프로미스를 위한 전역 변수
   }
+}
+
+// 전역 변수 초기화 (클라이언트 사이드에서만 실행)
+if (typeof window !== 'undefined' && !window.cvPromise) {
+  window.cvPromise = null;
 }
 
 // 반려동물 미용 스타일 타입 정의
@@ -104,10 +110,75 @@ const PetStyleRecommendation: React.FC<PetStyleRecommendationProps> = ({ onSelec
   const [error, setError] = useState<string | null>(null);
   const [recommendedStyles, setRecommendedStyles] = useState<GroomingStyle[]>([]);
   const [modelLoaded, setModelLoaded] = useState<boolean>(false);
+  const [cvLoaded, setCvLoaded] = useState<boolean>(false);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const modelRef = useRef<tf.GraphModel | null>(null);
+  
+  // OpenCV.js 로드 함수 (싱글톤 패턴 적용)
+  const loadOpenCV = async () => {
+    if (typeof window === 'undefined') return null;
+    
+    try {
+      // 이미 로드되었는지 확인
+      if (window.cv) {
+        console.log('OpenCV.js가 이미 로드되었습니다.');
+        setCvLoaded(true);
+        return window.cv;
+      }
+      
+      // 로드 중인지 확인
+      if (window.cvPromise) {
+        console.log('OpenCV.js가 이미 로드 중입니다. 기존 프로미스 재사용.');
+        const cv = await window.cvPromise;
+        setCvLoaded(true);
+        return cv;
+      }
+      
+      console.log('OpenCV.js 로드 시작...');
+      
+      // 새로운 로드 프로미스 생성
+      window.cvPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://docs.opencv.org/4.5.5/opencv.js';
+        script.async = true;
+        script.type = 'text/javascript';
+        
+        // 로드 성공 시
+        script.onload = () => {
+          console.log('OpenCV.js 로드 완료!');
+          if (window.cv) {
+            setCvLoaded(true);
+            resolve(window.cv);
+          } else {
+            const error = new Error('OpenCV.js가 로드되었지만 window.cv 객체가 없습니다.');
+            reject(error);
+          }
+        };
+        
+        // 로드 실패 시
+        script.onerror = () => {
+          const error = new Error('OpenCV.js 로드 실패');
+          window.cvPromise = null; // 프로미스 초기화
+          reject(error);
+        };
+        
+        // <head>에 스크립트 추가
+        document.head.appendChild(script);
+      });
+      
+      const cv = await window.cvPromise;
+      setCvLoaded(true);
+      return cv;
+    } catch (error) {
+      console.error('OpenCV.js 로드 오류:', error);
+      window.cvPromise = null; // 오류 발생 시 프로미스 초기화
+      setCvLoaded(false);
+      setError('OpenCV.js를 로드하는데 실패했습니다. 페이지를 새로고침해보세요.');
+      return null;
+    }
+  };
   
   // 모델 로드
   useEffect(() => {
@@ -128,28 +199,17 @@ const PetStyleRecommendation: React.FC<PetStyleRecommendationProps> = ({ onSelec
       }
     };
 
-    loadModel();
-    
-    // OpenCV.js 로드
-    const loadOpenCV = () => {
-      // 이미 OpenCV가 로드되어 있는지 확인
-      if (window.cv) {
-        return;
+    // OpenCV.js와 모델 로드
+    const loadLibraries = async () => {
+      try {
+        await loadOpenCV();
+        await loadModel();
+      } catch (err) {
+        console.error('라이브러리 로드 실패:', err);
       }
-      
-      const script = document.createElement('script');
-      script.src = 'https://docs.opencv.org/4.5.5/opencv.js';
-      script.async = true;
-      script.onload = () => console.log('OpenCV.js 로드 완료');
-      script.onerror = () => {
-        console.error('OpenCV.js 로드 실패');
-        setError('OpenCV.js를 로드하는데 실패했습니다.');
-      };
-      
-      document.body.appendChild(script);
     };
     
-    loadOpenCV();
+    loadLibraries();
     
     return () => {
       // 정리 작업
@@ -300,6 +360,18 @@ const PetStyleRecommendation: React.FC<PetStyleRecommendationProps> = ({ onSelec
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-xl font-semibold mb-4">AI 미용 스타일 추천</h2>
       
+      {/* 라이브러리 로드 상태 표시 */}
+      {(!modelLoaded || !cvLoaded) && (
+        <div className="mb-4 p-3 bg-blue-50 rounded-md">
+          <p className="text-blue-700 text-sm">
+            AI 모델을 불러오는 중입니다. 잠시만 기다려주세요...
+            {cvLoaded ? '✓' : '○'} OpenCV.js {cvLoaded ? '로드됨' : '로드 중'}
+            {', '}
+            {modelLoaded ? '✓' : '○'} TensorFlow.js {modelLoaded ? '로드됨' : '로드 중'}
+          </p>
+        </div>
+      )}
+      
       {/* 에러 메시지 */}
       {error && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
@@ -382,7 +454,7 @@ const PetStyleRecommendation: React.FC<PetStyleRecommendationProps> = ({ onSelec
       <div className="mb-6">
         <button
           onClick={analyzeImage}
-          disabled={!selectedFile || loading || !modelLoaded}
+          disabled={!selectedFile || loading || !modelLoaded || !cvLoaded}
           className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {loading ? (
@@ -393,7 +465,7 @@ const PetStyleRecommendation: React.FC<PetStyleRecommendationProps> = ({ onSelec
               </svg>
               분석 중...
             </span>
-          ) : !modelLoaded ? (
+          ) : !modelLoaded || !cvLoaded ? (
             'AI 모델 로드 중...'
           ) : (
             '반려동물 이미지 분석'

@@ -63,19 +63,52 @@ export default function KakaoMap({
       }
     }
   }, [latitude, longitude, level, isScriptLoaded, onMapInitialized]);
+  
+  // 카카오맵 로드 확인 함수
+  const checkKakaoMapLoaded = () => {
+    // window.kakao가 정의되었고, maps 속성이 있는지 확인
+    if (typeof window !== 'undefined' && window.kakao && window.kakao.maps) {
+      try {
+        window.kakao.maps.load(() => {
+          setIsScriptLoaded(true);
+        });
+      } catch (error) {
+        console.error("카카오맵 초기화 오류:", error);
+        // 이미 로드되었으면 바로 설정
+        setIsScriptLoaded(true);
+      }
+    } else {
+      // 아직 로드되지 않았으면 1초 후 재시도
+      setTimeout(checkKakaoMapLoaded, 1000);
+    }
+  };
 
   return (
     <>
       {/* 카카오 맵 스크립트 로드 */}
       <Script
-  src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_APP_KEY&libraries=${useLibraries}&autoload=false`}
-  onLoad={() => {
-    // 스크립트 로드 후 카카오 지도 SDK 초기화
-    window.kakao.maps.load(() => {
-      setIsScriptLoaded(true);
-    });
-  }}
-/>
+        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_APP_KEY&libraries=${useLibraries}&autoload=false`}
+        onLoad={() => {
+          // 브라우저 환경인지 확인
+          if (typeof window !== 'undefined') {
+            try {
+              if (window.kakao && window.kakao.maps) {
+                window.kakao.maps.load(() => {
+                  setIsScriptLoaded(true);
+                });
+              } else {
+                // kakao 객체가 아직 정의되지 않았거나 maps 속성이 없는 경우
+                console.log("카카오맵 객체 로딩 중...");
+                // 타이머 설정하여 kakao 객체 로딩 확인
+                checkKakaoMapLoaded();
+              }
+            } catch (error) {
+              console.error("카카오맵 초기화 오류:", error);
+            }
+          }
+        }}
+        strategy="afterInteractive"
+      />
       
       {/* 지도가 표시될 div */}
       <div 
