@@ -63,6 +63,7 @@ public class AuthService {
 
         return TokenResponse.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .expiresIn(tokenProvider.getAccessTokenExpirationMsec() / 1000)
                 .build();
@@ -82,12 +83,24 @@ public class AuthService {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
 
+        // 전화번호 중복 확인 추가
+        if (signupRequest.getPhone() != null && !signupRequest.getPhone().isEmpty()) {
+            boolean phoneExists = userRepository.existsByPhone(signupRequest.getPhone());
+            System.out.println("전화번호 중복 여부: " + phoneExists);
+
+            if (phoneExists) {
+                System.out.println("이미 사용 중인 전화번호: " + signupRequest.getPhone());
+                throw new RuntimeException("이미 사용 중인 전화번호입니다.");
+            }
+        }
+
         try {
             // 사용자 객체 생성
             User user = User.builder()
                     .name(signupRequest.getName())
                     .email(signupRequest.getEmail())
                     .password(passwordEncoder.encode(signupRequest.getPassword()))
+                    .phone(signupRequest.getPhone())  // 전화번호 필드 추가
                     .role(signupRequest.getRole() != null ? signupRequest.getRole() : User.Role.CUSTOMER)
                     .provider(User.AuthProvider.LOCAL)
                     .build();
@@ -127,6 +140,7 @@ public class AuthService {
 
         return TokenResponse.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .expiresIn(tokenProvider.getAccessTokenExpirationMsec() / 1000)
                 .build();

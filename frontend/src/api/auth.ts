@@ -22,8 +22,10 @@ interface SignupRequest {
   businessName?: string;
   businessDescription?: string;
   businessLicense?: string;
+  // 약관 동의 필드 추가
+  agreeTerms: boolean;
+  agreePrivacy: boolean;
 }
-
 // 사용자 정보 인터페이스
 export interface UserInfo {
   id: number;

@@ -27,7 +27,7 @@ public class SignupRequest {
     @Size(min = 8, message = "비밀번호는 최소 8자 이상이어야 합니다.")
     private String password;
 
-    // 전화번호는 필수가 아님 (프론트엔드에서도 필수가 아님)
+    @NotBlank(message = "휴대폰 번호는 필수입니다.")
     @Pattern(regexp = "^\\d{10,11}$", message = "핸드폰 번호는 10~11자리 숫자여야 합니다.")
     private String phone;
 

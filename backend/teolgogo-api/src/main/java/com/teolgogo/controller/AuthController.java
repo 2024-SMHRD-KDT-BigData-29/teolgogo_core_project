@@ -39,24 +39,39 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest signupRequest) {
-        // 약관 동의 검증
-        if (signupRequest.getAgreeTerms() == null || !signupRequest.getAgreeTerms() ||
-                signupRequest.getAgreePrivacy() == null || !signupRequest.getAgreePrivacy()) {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "이용약관 및 개인정보 처리방침에 동의해주세요.");
-            return ResponseEntity.badRequest().body(response);
+        System.out.println("회원가입 요청 받음: " + signupRequest.toString());
+
+        try {
+            // 약관 동의 검증
+            if (signupRequest.getAgreeTerms() == null || !signupRequest.getAgreeTerms() ||
+                    signupRequest.getAgreePrivacy() == null || !signupRequest.getAgreePrivacy()) {
+                System.out.println("약관 동의 검증 실패");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "이용약관 및 개인정보 처리방침에 동의해주세요.");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            User user = authService.signup(signupRequest);
+
+            System.out.println("회원가입 성공: " + user.getId());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("name", user.getName());
+            response.put("email", user.getEmail());
+            response.put("role", user.getRole());
+            response.put("message", "회원가입이 성공적으로 완료되었습니다.");
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("이미 사용 중인 이메일")) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", e.getMessage());
+                return ResponseEntity.status(400).body(errorResponse);
+            }
+            // 다른 런타임 예외는 그대로 던짐
+            throw e;
         }
-
-        User user = authService.signup(signupRequest);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("id", user.getId());
-        response.put("name", user.getName());
-        response.put("email", user.getEmail());
-        response.put("role", user.getRole());
-        response.put("message", "회원가입이 성공적으로 완료되었습니다.");
-
-        return ResponseEntity.ok(response);
     }
 
     // 액세스 토큰 갱신 API

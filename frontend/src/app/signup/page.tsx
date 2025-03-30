@@ -132,6 +132,9 @@ export default function SignupPage() {
         password,
         phone: phone || undefined,
         role: type,
+        // 약관 동의 필드 추가
+        agreeTerms,
+        agreePrivacy,
         // 업체 회원인 경우 추가 정보
         ...(type === 'BUSINESS' && {
           businessName,
