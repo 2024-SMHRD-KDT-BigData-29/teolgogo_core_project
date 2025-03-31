@@ -128,7 +128,22 @@ export default function RecommendationPage() {
         {/* AI 추천 컴포넌트 - 에러 방지를 위해 try-catch로 감싸기 */}
         <div className="mb-8">
           {/* 클라이언트 사이드에서만 렌더링되도록 동적으로 import된 컴포넌트 */}
-          <PetStyleRecommendation onSelectStyle={handleStyleSelect} />
+          <PetStyleRecommendation 
+            onStyleSelected={(style: string) => {
+                // 문자열 스타일을 GroomingStyle 객체로 변환
+                const groomingStyle: GroomingStyle = {
+                id: style,
+                name: style,
+                description: '스타일에 대한 설명',
+                imageUrl: '/images/styles/default.jpg',
+                confidence: 0.9,
+                petType: 'DOG'
+                };
+                
+                // 변환된 객체로 기존 핸들러 호출
+                handleStyleSelect(groomingStyle);
+            }} 
+            />
         </div>
         
         {/* 선택된 스타일 상세 정보 */}

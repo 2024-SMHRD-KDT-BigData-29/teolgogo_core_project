@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: '털고고',
   },
-  viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
+  viewport: 'width=device-width, initial-scale=1.0',
   // 오픈 그래프 태그 추가 (SEO 개선)
   openGraph: {
     type: 'website',
@@ -82,19 +82,23 @@ export default function RootLayout({
       </head>
       <body className={`flex flex-col min-h-screen ${inter.className}`}>
         {/* 전체 범위가 제한된 최대 너비 컨테이너 */}
-        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex-grow">
-          <AuthProvider>
-            <ThemeProvider>
-              <MainProvider>
-                {children}
-              </MainProvider>
-            </ThemeProvider>
-          </AuthProvider>
+        <div className="w-full max-w-full mx-auto flex-grow flex justify-center">
+          <div className="w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl">
+            <AuthProvider>
+              <ThemeProvider>
+                <MainProvider>
+                  {children}
+                </MainProvider>
+              </ThemeProvider>
+            </AuthProvider>
+          </div>
         </div>
         
         {/* 푸터도 컨테이너로 감싸기 */}
-        <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
-          <Footer />
+        <div className="w-full mx-auto flex justify-center">
+          <div className="w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl">
+            <Footer />
+          </div>
         </div>
         
         {/* 서비스 워커 등록 스크립트 */}

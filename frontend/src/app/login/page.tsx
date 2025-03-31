@@ -13,6 +13,9 @@ export default function LoginPage() {
   const { login, isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+
+  
   
   // 리다이렉션 경로 가져오기
   const redirect = searchParams.get('redirect') || '/';
@@ -26,6 +29,10 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<ErrorState>(resetErrorState());
   const [redirectMessage, setRedirectMessage] = useState<string | null>(null);
+
+  const [showSignupSuccess, setShowSignupSuccess] = useState(false);
+  const [signupEmail, setSignupEmail] = useState('');
+
   
   // 인증 상태 확인 및 리다이렉션
   useEffect(() => {
@@ -52,6 +59,28 @@ export default function LoginPage() {
       }
     }
   }, [isAuthenticated, loading, redirect, router, service]);
+
+  useEffect(() => {
+    const signupSuccess = searchParams.get('signup') === 'success';
+    const email = searchParams.get('email') || '';
+    if (signupSuccess) {
+      setShowSignupSuccess(true);
+      setSignupEmail(email);
+      
+      // 자동으로 이메일 필드 채우기
+      setEmail(email);
+  
+      // 5초 후 성공 메시지 숨기기
+      const timer = setTimeout(() => {
+        setShowSignupSuccess(false);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, setEmail]);
+  
+
+
   
   // 로그인 폼 제출 핸들러
   const handleSubmit = async (e: FormEvent) => {
@@ -98,6 +127,24 @@ export default function LoginPage() {
         
         <div className="container mx-auto max-w-md px-4 py-12">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 sm:p-8">
+
+
+            {/* 회원가입 성공 메시지 */}
+          {showSignupSuccess && (
+            <div className="mb-6 p-4 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded-md flex items-center">
+              <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <div>
+                <p className="font-medium">축하합니다! 회원가입이 완료되었습니다.</p>
+                {signupEmail && (
+                  <p className="text-sm mt-1">{signupEmail} 계정으로 로그인해주세요.</p>
+                )}
+              </div>
+            </div>
+          )}
+
+
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">로그인</h1>
               <p className="text-gray-600 dark:text-gray-300">

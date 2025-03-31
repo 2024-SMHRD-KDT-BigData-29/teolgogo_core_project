@@ -232,3 +232,24 @@ input:focus, select:focus, textarea:focus {
 .dark .footer-section {
   background-color: var(--background-secondary);
 }
+
+/* 네비게이션 바 슬라이드 다운 애니메이션 */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease forwards;
+}
+
+/* 네비게이션 바가 고정될 때 본문 여백 추가를 위한 클래스 */
+.has-fixed-nav {
+  padding-top: 4rem; /* 64px = navbar height */
+}

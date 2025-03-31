@@ -17,6 +17,31 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  
+  // 스크롤 위치 상태 추가
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // 스크롤 이벤트 리스너 추가
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    // 스크롤 이벤트 등록
+    window.addEventListener('scroll', handleScroll);
+    
+    // 초기 스크롤 위치 확인
+    handleScroll();
+    
+    // 정리 함수
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   // 외부 클릭 감지를 위한 이벤트 리스너
   useEffect(() => {
@@ -68,6 +93,12 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
     }
   };
 
+  // 홈 버튼 클릭 - 페이지 맨 위로 스크롤
+  const handleHomeClick = () => {
+    setIsMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // 견적 요청하기 버튼 클릭
   const handleQuotationRequest = () => {
     if (isAuthenticated) {
@@ -78,26 +109,29 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
   };
 
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-md transition-colors">
+    <nav 
+      className={`bg-white dark:bg-gray-900 shadow-md transition-colors
+      ${isScrolled ? 'fixed top-0 left-0 right-0 z-50 shadow-lg animate-slideDown' : ''}`}
+    >
       {/* 반응형 컨테이너 적용 - 다른 컴포넌트와 일관성 유지 */}
-      <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4">
+      <div className="w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto px-4">
         <div className="flex justify-between h-16">
           <div className="flex">
             {/* 로고 및 홈 링크 */}
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-primary-600 dark:text-primary-400">
+              <button onClick={handleHomeClick} className="text-xl font-bold text-primary-600 dark:text-primary-400">
                 털고고
-              </Link>
+              </button>
             </div>
             
             {/* 네비게이션 링크 */}
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link
-                href="/"
+              <button
+                onClick={handleHomeClick}
                 className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700"
               >
                 홈
-              </Link>
+              </button>
               <button
                 onClick={() => handleSectionClick('map')}
                 className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700"
@@ -229,13 +263,12 @@ export default function Navbar({ scrollToSection }: NavbarProps) {
       {isMenuOpen && (
         <div className="sm:hidden" ref={menuRef}>
           <div className="pt-2 pb-3 space-y-1">
-            <Link
-              href="/"
-              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-              onClick={() => setIsMenuOpen(false)}
+            <button
+              onClick={handleHomeClick}
+              className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
             >
               홈
-            </Link>
+            </button>
             <button
               onClick={() => handleSectionClick('map')}
               className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"

@@ -57,103 +57,104 @@ export default function SignupPage() {
   };
   
   // 회원가입 폼 제출 핸들러
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  
+  // 입력값 검증
+  if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+    setError({
+      hasError: true,
+      message: '모든 필수 정보를 입력해주세요.',
+      field: !name.trim() ? 'name' : !email.trim() ? 'email' : 'password'
+    });
+    return;
+  }
+  
+  // 비밀번호 확인
+  if (password !== confirmPassword) {
+    setError({
+      hasError: true,
+      message: '비밀번호가 일치하지 않습니다.',
+      field: 'confirmPassword'
+    });
+    return;
+  }
+  
+  // 비밀번호 길이 확인
+  if (password.length < 8) {
+    setError({
+      hasError: true,
+      message: '비밀번호는 최소 8자 이상이어야 합니다.',
+      field: 'password'
+    });
+    return;
+  }
+  
+  // 이메일 형식 확인
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    setError({
+      hasError: true,
+      message: '유효한 이메일 주소를 입력해주세요.',
+      field: 'email'
+    });
+    return;
+  }
+  
+  // 약관 동의 확인
+  if (!agreeTerms || !agreePrivacy) {
+    setError({
+      hasError: true,
+      message: '이용약관 및 개인정보 처리방침에 동의해주세요.',
+      field: 'terms'
+    });
+    return;
+  }
+  
+  // 업체 회원인 경우 업체명 필수
+  if (type === 'BUSINESS' && !businessName.trim()) {
+    setError({
+      hasError: true,
+      message: '업체명을 입력해주세요.',
+      field: 'businessName'
+    });
+    return;
+  }
+  
+  try {
+    setIsSubmitting(true);
+    setError(resetErrorState());
     
-    // 입력값 검증
-    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setError({
-        hasError: true,
-        message: '모든 필수 정보를 입력해주세요.',
-        field: !name.trim() ? 'name' : !email.trim() ? 'email' : 'password'
-      });
-      return;
-    }
+    // 회원가입 요청 데이터 준비
+    const signupData = {
+      name,
+      email,
+      password,
+      phone: phone || undefined,
+      role: type,
+      // 약관 동의 필드 추가
+      agreeTerms,
+      agreePrivacy,
+      // 업체 회원인 경우 추가 정보
+      ...(type === 'BUSINESS' && {
+        businessName,
+        businessDescription: businessDescription || undefined
+      })
+    };
     
-    // 비밀번호 확인
-    if (password !== confirmPassword) {
-      setError({
-        hasError: true,
-        message: '비밀번호가 일치하지 않습니다.',
-        field: 'confirmPassword'
-      });
-      return;
-    }
+    // 회원가입 요청
+    await signup(signupData);
     
-    // 비밀번호 길이 확인
-    if (password.length < 8) {
-      setError({
-        hasError: true,
-        message: '비밀번호는 최소 8자 이상이어야 합니다.',
-        field: 'password'
-      });
-      return;
-    }
-    
-    // 이메일 형식 확인
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError({
-        hasError: true,
-        message: '유효한 이메일 주소를 입력해주세요.',
-        field: 'email'
-      });
-      return;
-    }
-    
-    // 약관 동의 확인
-    if (!agreeTerms || !agreePrivacy) {
-      setError({
-        hasError: true,
-        message: '이용약관 및 개인정보 처리방침에 동의해주세요.',
-        field: 'terms'
-      });
-      return;
-    }
-    
-    // 업체 회원인 경우 업체명 필수
-    if (type === 'BUSINESS' && !businessName.trim()) {
-      setError({
-        hasError: true,
-        message: '업체명을 입력해주세요.',
-        field: 'businessName'
-      });
-      return;
-    }
-    
-    try {
-      setIsSubmitting(true);
-      setError(resetErrorState());
-      
-      // 회원가입 요청 데이터 준비
-      const signupData = {
-        name,
-        email,
-        password,
-        phone: phone || undefined,
-        role: type,
-        // 약관 동의 필드 추가
-        agreeTerms,
-        agreePrivacy,
-        // 업체 회원인 경우 추가 정보
-        ...(type === 'BUSINESS' && {
-          businessName,
-          businessDescription: businessDescription || undefined
-        })
-      };
-      
-      // 회원가입 요청
-      await signup(signupData);
-      
-      // 회원가입 성공 시 로그인 페이지로 리다이렉션
-      router.push(`/login?signup=success${redirect !== '/' ? `&redirect=${encodeURIComponent(redirect)}` : ''}`);
-    } catch (err) {
-      console.error('회원가입 실패:', err);
-      setError(createErrorState(err));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    // 회원가입 성공 시 로그인 페이지로 리다이렉션
+    router.push(`/login?signup=success&email=${encodeURIComponent(email)}${redirect !== '/' ? `&redirect=${encodeURIComponent(redirect)}` : ''}`);
+  } catch (err) {
+    console.error('회원가입 실패:', err);
+    setError(createErrorState(err));
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
   
   return (
     <ErrorBoundary>
