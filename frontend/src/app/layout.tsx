@@ -8,9 +8,6 @@ import Script from 'next/script';
 import Footer from '@/components/layout/Footer';
 import './globals.css';
 
-
-
-
 // Inter 폰트 설정 (variable 속성 추가)
 const inter = Inter({ 
   subsets: ['latin'],
@@ -62,6 +59,7 @@ export default function RootLayout({
         {/* 파비콘 및 기타 메타 태그 */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="manifest" href="/manifest.json" />
         <link rel="stylesheet" href="/css/pwa-styles.css" />
         <meta name="theme-color" content="#3f51b5" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
