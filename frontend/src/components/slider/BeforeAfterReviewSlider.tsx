@@ -78,9 +78,12 @@ const sampleItems: SliderItem[] = [
   }
 ];
 
-// 더 많은 샘플 데이터 생성 (총 30개)
+// 더 많은 샘플 데이터 생성 (총 30개) - Math.random() 사용 제거
 const generateMoreSamples = (): SliderItem[] => {
   const moreItems: SliderItem[] = [...sampleItems];
+  
+  // 고정된 데이터 패턴 사용 (Math.random() 사용하지 않음)
+  const ratingPattern = [5, 4.5, 4, 5, 4.5]; // 고정된 패턴으로 별점 지정
   
   for (let i = 6; i <= 30; i++) {
     // 기존 샘플을 기반으로 변형된 데이터 생성
@@ -91,7 +94,7 @@ const generateMoreSamples = (): SliderItem[] => {
       beforeImageUrl: baseItem.beforeImageUrl,
       afterImageUrl: baseItem.afterImageUrl,
       review: baseItem.review + (i > 15 ? ' 정말 만족스러운 서비스였습니다!' : ''),
-      rating: Math.random() > 0.7 ? 5 : Math.random() > 0.5 ? 4.5 : 4,
+      rating: ratingPattern[i % 5], // 고정된 패턴의 별점 사용
       customerName: ['김', '이', '박', '최', '정'][i % 5] + 'O' + 'O',
       serviceDate: `2024-${Math.floor(i / 6) + 1}-${Math.max(1, 28 - i % 28)}`
     });
@@ -206,16 +209,16 @@ const BeforeAfterReviewSlider: React.FC<BeforeAfterReviewSliderProps> = ({
     handleDragEnd();
   };
   
-  // 별점 렌더링 함수
+  // 별점 렌더링 함수 (일관성 있는 클래스 사용)
   const renderStars = (rating: number) => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
     
-    // 꽉 찬 별
+    // 꽉 찬 별 - 클래스 일관성 유지
     for (let i = 0; i < fullStars; i++) {
       stars.push(
-        <Star key={`full-${i}`} className="text-yellow-400 fill-yellow-400" size={16} />
+        <Star key={`full-${i}`} className="text-yellow-400" size={16} />
       );
     }
     
@@ -225,7 +228,7 @@ const BeforeAfterReviewSlider: React.FC<BeforeAfterReviewSliderProps> = ({
         <div key="half" className="relative">
           <Star className="text-yellow-400" size={16} />
           <div className="absolute top-0 left-0 w-1/2 overflow-hidden">
-            <Star className="text-yellow-400 fill-yellow-400" size={16} />
+            <Star className="text-yellow-400" size={16} />
           </div>
         </div>
       );
@@ -302,7 +305,7 @@ const BeforeAfterReviewSlider: React.FC<BeforeAfterReviewSliderProps> = ({
                   <div className="md:w-1/2 p-4 bg-gray-50">
                     <div className="flex items-center mb-2">
                       {renderStars(item.rating)}
-                      <span className="ml-2 text-sm text-gray-600">{item.rating.toFixed(1)}</span>
+                      <span className="ml-2 text-sm text-gray-600">{item.rating}</span>
                     </div>
                     <p className="text-gray-800 mb-4">"{item.review}"</p>
                     <div className="text-sm text-gray-500">

@@ -61,6 +61,7 @@ export interface QuoteRequestDetails {
 }
 
 // 견적 요청 생성 함수
+// 견적 요청 생성 함수
 export const createQuotationRequest = async (requestData: CreateQuoteRequest | any, petPhotos?: File[]) => {
   try {
     // FormData를 사용하는 경우 (파일 업로드가 있을 때)
@@ -75,6 +76,7 @@ export const createQuotationRequest = async (requestData: CreateQuoteRequest | a
         formData.append('petPhotos', file);
       });
       
+      // 백엔드 API 경로를 확인하여 수정
       const response = await apiClient.post('/quotes/requests', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -84,6 +86,7 @@ export const createQuotationRequest = async (requestData: CreateQuoteRequest | a
       return response.data;
     } else {
       // 일반 JSON 요청 (파일 업로드가 없을 때)
+      // 여기도 동일하게 경로 수정
       const response = await apiClient.post('/quotes/requests', requestData);
       return response.data;
     }
