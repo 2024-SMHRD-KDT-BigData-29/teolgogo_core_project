@@ -36,6 +36,9 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://localhost:3000",  // 로컬 개발 환경
                         "http://127.0.0.1:3000",  // 로컬 IP
+                        "http://192.168.219.165:3000", // 김형찬 IP
+                        "http://192.168.219.223:3000",      // 개발자 1의 IP
+                        "http://192.168.219.112:3000",      // 개발자 2의 IP
                         "https://teolgogo.com"   // 실제 도메인 (예시)
 //                        "*"                       // 모든 도메인 (개발용, 상용 환경에서는 제거)
                 )
