@@ -4,7 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa088c94-ef7c-4a6f-9245-7167fa938009" name="Changes" comment="" />
+    <list default="true" id="aa088c94-ef7c-4a6f-9245-7167fa938009" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/TeolgogoApiApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/TeolgogoApiApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/KakaoPushService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/KakaoPushService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/NotificationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/service-worker.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/service-worker.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/notification.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/notification.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/profile/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/profile/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/context/MainProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/context/MainProvider.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -36,8 +47,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="package.json" />
-        <option value="Interface" />
         <option value="Exception" />
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -68,32 +79,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Gradle.Build teolgogo-api.executor": "Run",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.TeolgogoApiApplication.executor": "Run",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/smhrd/teolgogo_core_project/backend/teolgogo-api/settings.gradle.kts",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Problems",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2",
-    "ts.external.directory.path": "C:\\IDE\\ideaIU-2024.3.5.win\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.Build teolgogo-api.executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.TeolgogoApiApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/smhrd/teolgogo_core_project/backend/teolgogo-api/settings.gradle.kts&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\IDE\\ideaIU-2024.3.5.win\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="teolgogo_core_project" />
@@ -134,7 +145,8 @@
       <workItem from="1743052289560" duration="369000" />
       <workItem from="1743139964965" duration="20602000" />
       <workItem from="1743161818244" duration="206000" />
-      <workItem from="1743162038368" duration="60638000" />
+      <workItem from="1743162038368" duration="68952000" />
+      <workItem from="1743407158244" duration="3806000" />
     </task>
     <servers />
   </component>

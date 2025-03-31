@@ -19,7 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
+
 @Service
+@ConditionalOnProperty(name = "kakao.push.enabled", havingValue = "true")
 public class KakaoPushService {
 
     private static final Logger logger = LoggerFactory.getLogger(KakaoPushService.class);

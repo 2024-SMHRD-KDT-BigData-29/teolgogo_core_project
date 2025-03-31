@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { updateUserProfile, updateProfileImage, changePassword } from '../../api/user';
 import { UserInfo } from '../../api/auth';
+import NotificationSettings from '@/components/common/NotificationSettings';
 
 const ProfilePage: React.FC = () => {
   const { isAuthenticated, user, refreshUser } = useAuth();
@@ -183,6 +184,10 @@ const ProfilePage: React.FC = () => {
           <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
             <p>{error}</p>
           </div>
+
+
+
+
         )}
         
         <form onSubmit={handleProfileSubmit}>
@@ -379,6 +384,9 @@ const ProfilePage: React.FC = () => {
           </form>
         </div>
       )}
+
+      {/* 알림 설정 컴포넌트 추가 */}
+      <NotificationSettings className="bg-white rounded-lg shadow-md p-6 mb-6" />
       
       {/* 소셜 로그인 연동 정보 */}
       <div className="mt-6 text-center">

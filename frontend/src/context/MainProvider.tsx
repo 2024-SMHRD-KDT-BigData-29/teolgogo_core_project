@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { setLoadingEvents, isLoading } from '@/api/client';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
+import { NotificationProvider } from './NotificationContext';
 
 // 로딩 상태 및 에러 관리를 위한 컨텍스트
 interface MainContextType {
@@ -111,69 +112,71 @@ export const MainProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   return (
     <MainContext.Provider value={{ loading, error, clearError, showError, showToast }}>
-      <ErrorBoundary>
-        {children}
-        
-        {/* 전역 로딩 인디케이터 */}
-        {loading && (
-          <div className="fixed top-0 left-0 w-full h-1 z-50">
-            <div className="h-full bg-primary-600 dark:bg-primary-500 animate-pulse" />
-          </div>
-        )}
-        
-        {/* 전역 에러 메시지 */}
-        {error && (
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-full max-w-sm z-50 px-4">
-            <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 p-4 rounded-md shadow-lg">
-              <div className="flex justify-between items-start">
-                <span>{error}</span>
-                <button
-                  onClick={clearError}
-                  className="text-red-500 dark:text-red-300 hover:text-red-700 dark:hover:text-red-100 ml-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+      <NotificationProvider>
+        <ErrorBoundary>
+          {children}
+          
+          {/* 전역 로딩 인디케이터 */}
+          {loading && (
+            <div className="fixed top-0 left-0 w-full h-1 z-50">
+              <div className="h-full bg-primary-600 dark:bg-primary-500 animate-pulse" />
+            </div>
+          )}
+          
+          {/* 전역 에러 메시지 */}
+          {error && (
+            <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-full max-w-sm z-50 px-4">
+              <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 p-4 rounded-md shadow-lg">
+                <div className="flex justify-between items-start">
+                  <span>{error}</span>
+                  <button
+                    onClick={clearError}
+                    className="text-red-500 dark:text-red-300 hover:text-red-700 dark:hover:text-red-100 ml-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-        
-        {/* 토스트 메시지 */}
-        <div className="fixed bottom-4 right-4 flex flex-col-reverse space-y-reverse space-y-2 z-50">
-          {toasts.map((toast) => (
-            <div
-              key={toast.id}
-              className={`p-4 rounded-md shadow-lg max-w-sm transform transition-all duration-300 ease-in-out ${
-                toast.type === 'success'
-                  ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
-                  : toast.type === 'error'
-                  ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'
-                  : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-              }`}
-            >
-              <div className="flex justify-between items-start">
-                <span>{toast.message}</span>
-                <button
-                  onClick={() => removeToast(toast.id)}
-                  className={`${
-                    toast.type === 'success'
-                      ? 'text-green-500 dark:text-green-300 hover:text-green-700 dark:hover:text-green-100'
-                      : toast.type === 'error'
-                      ? 'text-red-500 dark:text-red-300 hover:text-red-700 dark:hover:text-red-100'
-                      : 'text-blue-500 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-100'
-                  } ml-2`}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+          )}
+          
+          {/* 토스트 메시지 */}
+          <div className="fixed bottom-4 right-4 flex flex-col-reverse space-y-reverse space-y-2 z-50">
+            {toasts.map((toast) => (
+              <div
+                key={toast.id}
+                className={`p-4 rounded-md shadow-lg max-w-sm transform transition-all duration-300 ease-in-out ${
+                  toast.type === 'success'
+                    ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
+                    : toast.type === 'error'
+                    ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'
+                    : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                }`}
+              >
+                <div className="flex justify-between items-start">
+                  <span>{toast.message}</span>
+                  <button
+                    onClick={() => removeToast(toast.id)}
+                    className={`${
+                      toast.type === 'success'
+                        ? 'text-green-500 dark:text-green-300 hover:text-green-700 dark:hover:text-green-100'
+                        : toast.type === 'error'
+                        ? 'text-red-500 dark:text-red-300 hover:text-red-700 dark:hover:text-red-100'
+                        : 'text-blue-500 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-100'
+                    } ml-2`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </ErrorBoundary>
+            ))}
+          </div>
+        </ErrorBoundary>
+      </NotificationProvider>
     </MainContext.Provider>
   );
 };

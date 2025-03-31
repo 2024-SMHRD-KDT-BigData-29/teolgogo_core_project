@@ -77,6 +77,13 @@ dependencies {
     // jakarta.annotation-api 의존성 추가
     implementation("jakarta.annotation:jakarta.annotation-api:2.1.1")
 
+    // Web Push 라이브러리
+    implementation("nl.martijndwars:web-push:5.1.1")
+    // VAPID 키 생성 도구 (Bouncy Castle)
+    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+
+    implementation("commons-cli:commons-cli:1.5.0")
+
     // 테스트
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")

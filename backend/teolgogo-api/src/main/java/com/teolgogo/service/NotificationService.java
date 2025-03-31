@@ -22,18 +22,18 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final QuoteRequestRepository quoteRequestRepository;
     private final QuoteResponseRepository quoteResponseRepository;
-    private final KakaoPushService kakaoPushService;
+    private final PushNotificationService pushNotificationService;
 
     @Autowired
     public NotificationService(
             UserRepository userRepository,
             QuoteRequestRepository quoteRequestRepository,
             QuoteResponseRepository quoteResponseRepository,
-            KakaoPushService kakaoPushService) {
+            PushNotificationService pushNotificationService) {
         this.userRepository = userRepository;
         this.quoteRequestRepository = quoteRequestRepository;
         this.quoteResponseRepository = quoteResponseRepository;
-        this.kakaoPushService = kakaoPushService;
+        this.pushNotificationService = pushNotificationService;
     }
 
     /**
@@ -60,7 +60,8 @@ public class NotificationService {
             );
             String linkUrl = "https://teolgogo.com/business/quotation/" + requestId;
 
-            int sentCount = kakaoPushService.sendNearbyBusinessPushNotification(
+            // 웹 푸시 알림으로 대체
+            int sentCount = pushNotificationService.sendNearbyBusinessPushNotification(
                     request.getLatitude(),
                     request.getLongitude(),
                     5.0, // 5km 반경
@@ -100,7 +101,8 @@ public class NotificationService {
             );
             String linkUrl = "https://teolgogo.com/quotation/" + offer.getQuoteRequest().getId();
 
-            boolean sent = kakaoPushService.sendPushNotification(
+            // 웹 푸시 알림으로 대체
+            boolean sent = pushNotificationService.sendPushNotification(
                     customer.getId(),
                     title,
                     content,
@@ -138,7 +140,8 @@ public class NotificationService {
             );
             String linkUrl = "https://teolgogo.com/business/quotation/" + offer.getId() + "/dashboard";
 
-            boolean sent = kakaoPushService.sendPushNotification(
+            // 웹 푸시 알림으로 대체
+            boolean sent = pushNotificationService.sendPushNotification(
                     business.getId(),
                     title,
                     content,
@@ -176,7 +179,8 @@ public class NotificationService {
             );
             String linkUrl = "https://teolgogo.com/reviews/create/" + responseId;
 
-            boolean sent = kakaoPushService.sendPushNotification(
+            // 웹 푸시 알림으로 대체
+            boolean sent = pushNotificationService.sendPushNotification(
                     customer.getId(),
                     title,
                     content,
@@ -205,7 +209,8 @@ public class NotificationService {
             );
             String linkUrl = "https://teolgogo.com/business/reviews";
 
-            boolean sent = kakaoPushService.sendPushNotification(
+            // 웹 푸시 알림으로 대체
+            boolean sent = pushNotificationService.sendPushNotification(
                     businessId,
                     title,
                     content,
