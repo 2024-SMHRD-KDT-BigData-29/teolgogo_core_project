@@ -1,212 +1,113 @@
 // hooks/usePushNotification.ts
-
 import { useState, useEffect } from 'react';
+import { useNotification } from '@/context/NotificationContext';
+import { useMain } from '@/context/MainProvider';
+import { isPushNotificationSupported, getBrowserInfo } from '@/utils/notificationUtils';
 
-/**
- * 웹 푸시 알림 구독을 관리하는 커스텀 훅
- * 사용자의 알림 권한 상태 확인, 서비스 워커 등록, 구독 생성 및 서버 전송 기능 제공
- */
-export default function usePushNotification() {
-  // 상태 관리
-  const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
-  const [subscription, setSubscription] = useState<PushSubscription | null>(null);
-  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
-  const [permissionState, setPermissionState] = useState<NotificationPermission>('default');
-
-  /**
-   * 알림 권한 상태를 확인하는 함수
-   * @returns 현재 알림 권한 상태 (granted, denied, default)
-   */
-  const checkPermission = async (): Promise<NotificationPermission> => {
-    if (!('Notification' in window)) {
-      console.error('이 브라우저는 알림을 지원하지 않습니다.');
-      return 'denied';
-    }
-    
-    // 현재 알림 권한 상태를 가져옴
-    const permission = await Notification.requestPermission();
-    setPermissionState(permission);
-    return permission;
-  };
-
-  /**
-   * 서비스 워커를 등록하는 함수
-   * @returns 등록된 서비스 워커 등록 객체
-   */
-  const registerServiceWorker = async (): Promise<ServiceWorkerRegistration | null> => {
-    if (!('serviceWorker' in navigator)) {
-      console.error('이 브라우저는 서비스 워커를 지원하지 않습니다.');
-      return null;
-    }
-
-    try {
-      // 서비스 워커 등록
-      const reg = await navigator.serviceWorker.register('/service-worker.js');
-      setRegistration(reg);
-      return reg;
-    } catch (error) {
-      console.error('서비스 워커 등록 중 오류:', error);
-      return null;
-    }
-  };
-
-  /**
-   * 웹 푸시 구독을 생성하고 서버에 전송하는 함수
-   * @returns 생성된 구독 객체
-   */
-  const subscribe = async (): Promise<PushSubscription | null> => {
-    // 권한 확인
-    const permission = await checkPermission();
-    if (permission !== 'granted') {
-      console.error('알림 권한이 없습니다.');
-      return null;
-    }
-
-    // 서비스 워커 등록 확인
-    const reg = registration || await registerServiceWorker();
-    if (!reg) return null;
-
-    try {
-      // 서버에서 공개키 가져오기
-      const response = await fetch('/api/notification/vapid-public-key');
-      const { publicKey } = await response.json();
-
-      // 구독 옵션 설정
-      const subscribeOptions = {
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey)
-      };
-
-      // 푸시 구독 생성
-      const newSubscription = await reg.pushManager.subscribe(subscribeOptions);
-      setSubscription(newSubscription);
-      setIsSubscribed(true);
-
-      // 서버에 구독 정보 전송
-      await sendSubscriptionToServer(newSubscription);
-      return newSubscription;
-    } catch (error) {
-      console.error('푸시 구독 생성 중 오류:', error);
-      return null;
-    }
-  };
-
-  /**
-   * 구독 정보를 서버에 전송하는 함수
-   * @param subscription 전송할 구독 정보
-   */
-  const sendSubscriptionToServer = async (subscription: PushSubscription): Promise<void> => {
-    try {
-      const response = await fetch('/api/notification/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(subscription),
-      });
-
-      if (!response.ok) {
-        throw new Error('서버에 구독 정보 전송 실패');
-      }
-      
-      console.log('서버에 구독 정보 전송 성공');
-    } catch (error) {
-      console.error('서버에 구독 정보 전송 중 오류:', error);
-    }
-  };
-
-  /**
-   * 구독을 취소하는 함수
-   */
-  const unsubscribe = async (): Promise<boolean> => {
-    if (!subscription) {
-      console.error('구독 정보가 없습니다.');
-      return false;
-    }
-
-    try {
-      // 서버에 구독 취소 요청 보내기
-      await fetch('/api/notification/unsubscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(subscription),
-      });
-
-      // 클라이언트에서 구독 취소
-      const success = await subscription.unsubscribe();
-      
-      if (success) {
-        setIsSubscribed(false);
-        setSubscription(null);
-        console.log('구독 취소 성공');
-      }
-      
-      return success;
-    } catch (error) {
-      console.error('구독 취소 중 오류:', error);
-      return false;
-    }
-  };
-
-  /**
-   * 기존 구독 상태를 확인하는 함수
-   */
-  const checkSubscription = async (): Promise<void> => {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+export function usePushNotification() {
+  const { showToast } = useMain();
+  const {
+    isSubscribed,
+    isPushSupported,
+    permissionState,
+    subscribeToPushNotifications,
+    unsubscribeFromPushNotifications,
+    requestNotificationPermission
+  } = useNotification();
+  
+  const [isPromptVisible, setIsPromptVisible] = useState(false);
+  const browserInfo = getBrowserInfo();
+  
+  // 사용자에게 알림 구독을 유도하는 프롬프트를 표시할지 여부를 결정
+  useEffect(() => {
+    // 이미 알림을 구독했거나 권한을 거부한 경우 또는 지원하지 않는 경우 표시하지 않음
+    if (isSubscribed || permissionState === 'denied' || !isPushSupported) {
+      setIsPromptVisible(false);
       return;
     }
-
-    try {
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (!reg) return;
-
-      setRegistration(reg);
-      const existingSubscription = await reg.pushManager.getSubscription();
+    
+    // 로컬 스토리지에서 프롬프트 표시 여부 확인
+    const hasPromptedBefore = localStorage.getItem('notification_prompted');
+    const lastPromptDate = localStorage.getItem('notification_prompted_date');
+    
+    if (!hasPromptedBefore) {
+      // 처음 방문한 경우 잠시 대기 후 프롬프트 표시
+      const timer = setTimeout(() => {
+        setIsPromptVisible(true);
+        localStorage.setItem('notification_prompted', 'true');
+        localStorage.setItem('notification_prompted_date', new Date().toISOString());
+      }, 5000); // 5초 후 표시
       
-      setSubscription(existingSubscription);
-      setIsSubscribed(!!existingSubscription);
-    } catch (error) {
-      console.error('구독 상태 확인 중 오류:', error);
+      return () => clearTimeout(timer);
+    } else if (lastPromptDate) {
+      // 마지막 표시 날짜가 7일 이전인 경우 다시 표시
+      const lastDate = new Date(lastPromptDate);
+      const currentDate = new Date();
+      const diffDays = Math.floor((currentDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays >= 7) {
+        setIsPromptVisible(true);
+        localStorage.setItem('notification_prompted_date', currentDate.toISOString());
+      }
     }
+  }, [isSubscribed, permissionState, isPushSupported]);
+  
+  // 알림 구독 처리
+  const handleSubscribe = async () => {
+    setIsPromptVisible(false);
+    
+    if (!isPushSupported) {
+      showToast('이 브라우저는 푸시 알림을 지원하지 않습니다.', 'error');
+      return false;
+    }
+    
+    try {
+      const success = await subscribeToPushNotifications();
+      if (success) {
+        showToast('견적 관련 중요 알림을 받을 수 있습니다!', 'success');
+        return true;
+      }
+    } catch (error) {
+      console.error('알림 구독 중 오류:', error);
+    }
+    
+    return false;
   };
-
-  // 컴포넌트 마운트 시 기존 구독 상태 확인
-  useEffect(() => {
-    checkPermission();
-    checkSubscription();
-  }, []);
-
+  
+  // 알림 구독 취소 처리
+  const handleUnsubscribe = async () => {
+    try {
+      const success = await unsubscribeFromPushNotifications();
+      if (success) {
+        showToast('알림 수신이 중지되었습니다.', 'info');
+        return true;
+      }
+    } catch (error) {
+      console.error('알림 구독 취소 중 오류:', error);
+    }
+    
+    return false;
+  };
+  
+  // 알림 프롬프트 닫기
+  const dismissPrompt = () => {
+    setIsPromptVisible(false);
+    // 이번 세션에서 다시 표시하지 않음
+    sessionStorage.setItem('notification_prompt_dismissed', 'true');
+  };
+  
+  // iOS Safari에서는 푸시 알림이 지원되지 않으므로 별도 처리
+  const isIOSSafari = browserInfo.isIOS && browserInfo.name === 'Safari';
+  
   return {
     isSubscribed,
+    isPushSupported: isPushSupported && !isIOSSafari,
     permissionState,
-    subscription,
-    checkPermission,
-    subscribe,
-    unsubscribe,
+    isPromptVisible: isPromptVisible && !sessionStorage.getItem('notification_prompt_dismissed'),
+    browserInfo,
+    subscribe: handleSubscribe,
+    unsubscribe: handleUnsubscribe,
+    requestPermission: requestNotificationPermission,
+    dismissPrompt
   };
-}
-
-/**
- * URL Safe Base64 문자열을 Uint8Array로 변환하는 유틸리티 함수
- * 웹 푸시 API에서 applicationServerKey를 설정할 때 필요함
- * 
- * @param base64String URL Safe Base64 인코딩된 문자열
- * @returns 변환된 Uint8Array
- */
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
-
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  
-  return outputArray;
 }

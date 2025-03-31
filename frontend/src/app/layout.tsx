@@ -1,15 +1,15 @@
-// app/layout.tsx의 body 부분에 NotificationPrompt 컴포넌트 추가
+// app/layout.tsx
 
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { MainProvider } from '@/context/MainProvider';
+import { NotificationProvider } from '@/context/NotificationContext';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Script from 'next/script';
 import Footer from '@/components/layout/Footer';
 import NotificationPrompt from '@/components/common/NotificationPrompt';
-import './globals.css';
 
 // Inter 폰트 설정 (variable 속성 추가)
 const inter = Inter({ 
@@ -88,8 +88,10 @@ export default function RootLayout({
             <AuthProvider>
               <ThemeProvider>
                 <MainProvider>
-                  {children}
-                  <NotificationPrompt />
+                  <NotificationProvider>
+                    {children}
+                    <NotificationPrompt />
+                  </NotificationProvider>
                 </MainProvider>
               </ThemeProvider>
             </AuthProvider>

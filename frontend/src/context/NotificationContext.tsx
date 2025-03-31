@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useMain } from './MainProvider';
-import { urlBase64ToUint8Array } from '@/utils/notificationUtils';
+import { urlBase64ToUint8Array } from '../utils/notificationUtils';
 
 // 알림 컨텍스트 타입 정의
 interface NotificationContextType {

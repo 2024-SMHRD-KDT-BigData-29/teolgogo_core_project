@@ -6,10 +6,12 @@ import { useAuth } from '../../../../context/AuthContext';
 import { getBusinessReviews, getBusinessReviewStats, Review } from '../../../../api/review';
 import { getBusinessProfileById } from '../../../../api/business';
 
+// 타입 정의 수정 - searchParams 추가
 interface BusinessReviewsPageProps {
   params: {
     id: string;
   };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 const BusinessReviewsPage: React.FC<BusinessReviewsPageProps> = ({ params }) => {
