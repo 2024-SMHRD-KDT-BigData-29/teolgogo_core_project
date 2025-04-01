@@ -8,15 +8,13 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { createErrorState, resetErrorState, ErrorState } from '@/utils/errorHandling';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
+import SocialLoginButtons from '@/components/auth/SocialLoginButtons'; // 소셜 로그인 버튼 컴포넌트 import
 
 export default function LoginPage() {
   const { login, isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-
-  
-  
   // 리다이렉션 경로 가져오기
   const redirect = searchParams.get('redirect') || '/';
   
@@ -259,59 +257,13 @@ export default function LoginPage() {
                 </div>
               </div>
               
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <div>
-                  <a
-                    href="#"
-                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
-                  >
-                    <span className="sr-only">카카오로 로그인</span>
-                    <svg
-                      className="h-5 w-5"
-                      fill="#FEE500" // 카카오 색상
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path d="M12 3C7.0375 3 3 6.21 3 10.2C3 12.6975 4.60312 14.8875 7.05 16.1025L6.30562 19.6263C6.24937 19.8525 6.4875 20.0419 6.69375 19.9219L10.8469 17.2069C11.2219 17.2506 11.6006 17.2963 12 17.2963C16.9625 17.2963 21 14.0862 21 10.2C21 6.21 16.9625 3 12 3Z" />
-                    </svg>
-                  </a>
-                </div>
-                
-                <div>
-                  <a
-                    href="#"
-                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
-                  >
-                    <span className="sr-only">구글로 로그인</span>
-                    <svg
-                      className="h-5 w-5"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866 0.549 3.921 1.453l2.814-2.814c-1.79-1.677-4.184-2.702-6.735-2.702-5.522 0-10 4.478-10 10s4.478 10 10 10c5.522 0 10-4.478 10-10 0-0.617-0.066-1.219-0.179-1.806h-9.821z"
-                        fill="#FFF"
-                      ></path>
-                      <path
-                        d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866 0.549 3.921 1.453l2.814-2.814c-1.79-1.677-4.184-2.702-6.735-2.702-5.522 0-10 4.478-10 10s4.478 10 10 10c5.522 0 10-4.478 10-10 0-0.617-0.066-1.219-0.179-1.806h-9.821z"
-                        fill="#4285F4"
-                      ></path>
-                      <path
-                        d="M4 12c0-0.667 0.082-1.316 0.235-1.938l-3.235-2.493v4.431h3z"
-                        fill="#FBBC05"
-                      ></path>
-                      <path
-                        d="M12 16.868c-1.842 0-3.39-0.62-4.513-1.675l-3.235 2.493c1.527 1.528 3.653 2.477 6 2.477 2.070 0 3.98-0.671 5.531-1.795l-3.042-2.358c-0.723 0.556-1.62 0.887-2.741 0.887z"
-                        fill="#EA4335"
-                      ></path>
-                      <path
-                        d="M20 10.239c-0.815-2.428-3.057-4.174-5.748-4.174-1.842 0-3.495 0.642-4.795 1.894l3.237 2.503c0.871-0.591 1.929-0.939 3.057-0.939 2.347 0 4.268 1.621 4.653 3.717h-4.653v3.821h5.536c0.415-1.082 0.713-2.256 0.713-3.475 0-1.143-0.229-2.235-0.538-3.253l-1.462-0.094z"
-                        fill="#34A853"
-                      ></path>
-                    </svg>
-                  </a>
-                </div>
+              {/* 소셜 로그인 버튼 */}
+              <div className="mt-6">
+                <SocialLoginButtons 
+                  redirectUri={redirect !== '/' ? redirect : undefined} 
+                  modern={true} 
+                  className="mx-auto"
+                />
               </div>
             </div>
           </div>

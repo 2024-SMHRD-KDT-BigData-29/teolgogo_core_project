@@ -18,7 +18,7 @@ export const createQuoteRequest = async (quoteData: {
   }>;
 }) => {
   try {
-    const response = await apiClient.post('/quote-requests', quoteData);
+    const response = await apiClient.post('/quotes/requests', quoteData);
     return response.data;
   } catch (error) {
     console.error('견적 요청 생성 실패:', error);

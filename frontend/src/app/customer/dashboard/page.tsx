@@ -1,37 +1,30 @@
-// app/business/dashboard/page.tsx
-// 미용업체 대시보드 구현
-// 업주가 견적 요청을 확인하고 관리할 수 있는 대시보드
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { getAvailableQuoteRequests } from '@/api/quotation';
-import { useLocation } from '@/hooks/useLocation';
+import { getCustomerQuoteRequests } from '@/api/quotation';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 interface QuoteRequest {
   id: number;
-  customerName: string;
   serviceType: string;
   address: string;
   status: 'PENDING' | 'OFFERED' | 'ACCEPTED' | 'COMPLETED';
   createdAt: string;
-  latitude: number;
-  longitude: number;
+  offerCount?: number; // 받은 견적 수
 }
 
-export default function BusinessDashboardPage() {
+export default function CustomerDashboardPage() {
   const { user, isAuthenticated, loading } = useAuth();
-  const { getCurrentLocation } = useLocation();
   const [quoteRequests, setQuoteRequests] = useState<QuoteRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('all');
 
-  // 사용자가 업체인지 확인
+  // 사용자가 고객인지 확인
   useEffect(() => {
-    if (!loading && user && user.role !== 'BUSINESS') {
-      // 업체가 아니면 메인 대시보드로 리디렉션
+    if (!loading && user && user.role !== 'CUSTOMER') {
+      // 고객이 아니면 메인 대시보드로 리디렉션
       window.location.href = '/dashboard';
     }
   }, [user, loading]);
@@ -43,23 +36,7 @@ export default function BusinessDashboardPage() {
       
       try {
         setIsLoading(true);
-        
-        // 먼저 위치 정보 가져오기 시도
-        let latitude = user?.latitude;
-        let longitude = user?.longitude;
-        
-        if (!latitude || !longitude) {
-          try {
-            const position = await getCurrentLocation();
-            latitude = position.latitude;
-            longitude = position.longitude;
-          } catch (locationError) {
-            console.warn('위치 정보를 가져오는데 실패했습니다:', locationError);
-          }
-        }
-        
-        // 견적 요청 목록 가져오기
-        const data = await getAvailableQuoteRequests(latitude, longitude, 10); // 10km 반경 내 요청
+        const data = await getCustomerQuoteRequests();
         setQuoteRequests(data || []);
       } catch (error) {
         console.error('견적 요청 목록 로드 실패:', error);
@@ -69,7 +46,7 @@ export default function BusinessDashboardPage() {
     };
 
     fetchQuoteRequests();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated]);
 
   // 상태별 필터링
   const filteredRequests = quoteRequests.filter(request => {
@@ -86,7 +63,17 @@ export default function BusinessDashboardPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">업체 대시보드</h1>
+      <h1 className="text-2xl font-bold mb-6">내 견적 요청</h1>
+      
+      {/* 새 견적 요청 버튼 */}
+      <div className="mb-6">
+        <Link 
+          href="/quotes/create"
+          className="inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+        >
+          새 견적 요청하기
+        </Link>
+      </div>
       
       {/* 탭 메뉴 */}
       <div className="flex border-b mb-6">
@@ -104,7 +91,7 @@ export default function BusinessDashboardPage() {
           }`}
           onClick={() => setActiveTab('pending')}
         >
-          신규 요청
+          대기중
         </button>
         <button
           className={`py-2 px-4 ${
@@ -112,7 +99,7 @@ export default function BusinessDashboardPage() {
           }`}
           onClick={() => setActiveTab('offered')}
         >
-          견적 제안함
+          견적 제안 받음
         </button>
         <button
           className={`py-2 px-4 ${
@@ -120,15 +107,17 @@ export default function BusinessDashboardPage() {
           }`}
           onClick={() => setActiveTab('accepted')}
         >
-          진행중
+          예약 확정
         </button>
       </div>
       
       {/* 견적 요청 목록 */}
       {filteredRequests.length === 0 ? (
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <p className="text-gray-500">현재 견적 요청이 없습니다.</p>
-          <p className="text-sm text-gray-400 mt-2">근처의 고객이 견적을 요청하면 여기에 표시됩니다.</p>
+          <p className="text-gray-500 mb-4">해당하는 견적 요청이 없습니다.</p>
+          <Link href="/quotes/create" className="text-blue-500 hover:underline">
+            새 견적 요청하기
+          </Link>
         </div>
       ) : (
         <div className="space-y-4">
@@ -141,18 +130,18 @@ export default function BusinessDashboardPage() {
               case 'PENDING':
                 statusStyle = "bg-yellow-100 text-yellow-800";
                 actionButton = (
-                  <Link 
-                    href={`/business/quotation/${request.id}`}
-                    className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-                  >
-                    견적 제안하기
-                  </Link>
+                  <span className="text-gray-500 text-sm">견적 대기중</span>
                 );
                 break;
               case 'OFFERED':
                 statusStyle = "bg-blue-100 text-blue-800";
                 actionButton = (
-                  <span className="text-gray-500 text-sm">고객 응답 대기중</span>
+                  <Link 
+                    href={`/quotation/${request.id}`}
+                    className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                  >
+                    견적 확인하기
+                  </Link>
                 );
                 break;
               case 'ACCEPTED':
@@ -175,13 +164,13 @@ export default function BusinessDashboardPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-medium">{request.serviceType}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{request.customerName} 고객</p>
                     <p className="text-sm text-gray-500 mt-1">{request.address}</p>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs ${statusStyle}`}>
-                    {request.status === 'PENDING' && '신규 요청'}
-                    {request.status === 'OFFERED' && '제안함'}
-                    {request.status === 'ACCEPTED' && '진행중'}
+                    {request.status === 'PENDING' && '대기중'}
+                    {request.status === 'OFFERED' && 
+                      `견적 ${request.offerCount || 0}개 받음`}
+                    {request.status === 'ACCEPTED' && '예약 확정'}
                     {request.status === 'COMPLETED' && '완료'}
                   </span>
                 </div>

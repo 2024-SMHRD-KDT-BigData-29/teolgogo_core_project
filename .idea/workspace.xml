@@ -6,15 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="aa088c94-ef7c-4a6f-9245-7167fa938009" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/TeolgogoApiApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/TeolgogoApiApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/KakaoPushService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/KakaoPushService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/NotificationService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/service-worker.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/service-worker.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/api/notification.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/notification.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/profile/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/profile/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/context/MainProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/context/MainProvider.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/controller/QuoteController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/QuoteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/teolgogo-api/src/main/java/com/teolgogo/service/QuoteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/business/quotation/[id]/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/business/quotation/[id]/dashboard/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/dashboard/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/login/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/quotes/create/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/quotes/create/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,12 +28,7 @@
       <state>
         <projects_view>
           <tree_state>
-            <expand>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="teolgogo-api" type="f1a62948:ProjectNode" />
-              </path>
-            </expand>
+            <expand />
             <select />
           </tree_state>
         </projects_view>
@@ -146,7 +138,9 @@
       <workItem from="1743139964965" duration="20602000" />
       <workItem from="1743161818244" duration="206000" />
       <workItem from="1743162038368" duration="68952000" />
-      <workItem from="1743407158244" duration="3806000" />
+      <workItem from="1743407158244" duration="15399000" />
+      <workItem from="1743470773748" duration="5558000" />
+      <workItem from="1743494569062" duration="8102000" />
     </task>
     <servers />
   </component>
