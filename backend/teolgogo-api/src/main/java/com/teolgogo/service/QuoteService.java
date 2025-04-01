@@ -23,9 +23,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
-
-
 @Service
 public class QuoteService {
 
@@ -48,13 +45,6 @@ public class QuoteService {
         this.fileService = fileService;
         this.notificationService = notificationService;
     }
-
-    @Transactional(readOnly = true)
-    public QuoteRequest getQuoteRequestById(Long requestId) {
-        return quoteRequestRepository.findById(requestId)
-                .orElseThrow(() -> new EntityNotFoundException("견적 요청을 찾을 수 없습니다."));
-    }
-
 
     // 견적 요청 생성
     @Transactional

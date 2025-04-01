@@ -116,125 +116,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     loadUser();
   }, []);
 
-
-// 푸시 알림 관련 useEffect 추가
-useEffect(() => {
-  // 로그인 상태가 변경될 때 푸시 알림 구독 확인
-  if (!!user) { // isAuthenticated 대신 !!user 사용
-    // 푸시 알림 구독 상태 확인 및 구독 요청
-    checkAndRequestPushNotification();
-  }
-}, [user]); // user 의존성 추가
-
-// 푸시 알림 상태 확인 및 요청 함수
-const checkAndRequestPushNotification = async () => {
-  try {
-    // 이미 구독 상태인지 확인 (로컬 스토리지)
-    const isPushSubscribed = localStorage.getItem('pushNotificationSubscribed') === 'true';
-    
-    // 구독되지 않은 경우, 사용자에게 알림 요청
-    if (!isPushSubscribed && 'Notification' in window) {
-      // 알림 권한이 이미 허용되었거나 거부된 경우는 다시 묻지 않음
-      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-        // 잠시 대기 후 알림 요청 (로그인 직후이므로 시간차를 둠)
-        setTimeout(() => {
-          const notificationPrompt = confirm(
-            '견적 알림을 받으시겠습니까? 알림을 통해 견적 제안, 수락 등의 중요 정보를 받을 수 있습니다.'
-          );
-          
-          if (notificationPrompt) {
-            requestNotificationPermission();
-          }
-        }, 2000);
-      }
-    }
-  } catch (error) {
-    console.error('푸시 알림 확인 중 오류:', error);
-  }
-};
-
-// 알림 권한 요청 함수
-const requestNotificationPermission = async () => {
-  try {
-    if (!('Notification' in window)) {
-      console.log('이 브라우저는 알림을 지원하지 않습니다.');
-      return;
-    }
-    
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      // 권한 허용 시, 서비스 워커 등록 및 푸시 구독 처리
-      registerPushSubscription();
-    } else {
-      console.log('알림 권한이 거부되었습니다.');
-    }
-  } catch (error) {
-    console.error('알림 권한 요청 중 오류:', error);
-  }
-};
-
-// 푸시 구독 등록 함수
-const registerPushSubscription = async () => {
-  try {
-    // Service Worker가 지원되는지 확인
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      console.log('이 브라우저는 푸시 알림을 지원하지 않습니다.');
-      return;
-    }
-    
-    // 서비스 워커 등록
-    const registration = await navigator.serviceWorker.register('/service-worker.js');
-    console.log('서비스 워커 등록 성공:', registration);
-    
-    // 백엔드에서 공개 키 가져오기
-    const response = await fetch('/api/push-notifications/public-key');
-    const { publicKey } = await response.json();
-    
-    // 공개 키를 Uint8Array로 변환
-    const applicationServerKey = urlBase64ToUint8Array(publicKey);
-    
-    // 푸시 구독 등록
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey
-    });
-    
-    // 백엔드에 구독 정보 전송
-    await fetch('/api/push-notifications/subscribe', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(subscription)
-    });
-    
-    // 구독 성공 시 로컬 스토리지에 상태 저장
-    localStorage.setItem('pushNotificationSubscribed', 'true');
-    console.log('푸시 알림 구독 성공');
-  } catch (error) {
-    console.error('푸시 구독 등록 중 오류:', error);
-  }
-};
-
-// Base64 문자열을 Uint8Array로 변환하는 함수
-const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
-  
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  
-  return outputArray;
-};
-
-
-
   // 사용자 정보 새로고침
   const refreshUser = async (): Promise<User> => {
     try {
@@ -258,72 +139,41 @@ const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
   };
 
   // 로그인 함수
-  const login = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // API 로그인 호출
-      const response = await apiLogin({ email, password });
-      
-      // 응답에서 토큰 확인 및 저장
-      if (response?.data?.accessToken) {
-        localStorage.setItem('accessToken', response.data.accessToken);
-        console.log('액세스 토큰 저장됨:', response.data.accessToken.substring(0, 20) + '...');
-      }
-      if (response?.data?.refreshToken) {
-        localStorage.setItem('refreshToken', response.data.refreshToken);
-        console.log('리프레시 토큰 저장됨:', response.data.refreshToken.substring(0, 20) + '...');
-      }
-      
-      // 사용자 정보 가져오기
-      const userData = await getCurrentUser();
-      const typedUser = userData as User;
-      setUser(typedUser);
-      
-      // 사용자 정보를 로컬 스토리지에 저장
-      localStorage.setItem('user', JSON.stringify(typedUser));
-      
-      // 위치 정보 권한 요청 (타이머를 통해 로그인 완료 후 실행)
-      setTimeout(() => {
-        requestLocationPermission();
-      }, 1000);
-      
-    } catch (err: any) {
-      setError(err.response?.data?.message || '로그인에 실패했습니다.');
-      console.error('로그인 실패:', err);
-      throw err;
-    } finally {
-      setLoading(false);
+const login = async (email: string, password: string) => {
+  try {
+    setLoading(true);
+    setError(null);
+    
+    // API 로그인 호출
+    const response = await apiLogin({ email, password });
+    
+    // 응답에서 토큰 확인 및 저장 (이 부분 추가)
+    if (response?.data?.accessToken) {
+      localStorage.setItem('accessToken', response.data.accessToken);
+      console.log('액세스 토큰 저장됨:', response.data.accessToken.substring(0, 20) + '...');
     }
-  };
-
-  const requestLocationPermission = () => {
-    if (navigator.geolocation) {
-      const permissionDialog = confirm(
-        '털고고 서비스는 사용자의 위치 정보를 사용하여 주변 업체를 찾고 견적 요청 시 위치 정보를 활용합니다. 위치 정보 제공에 동의하시겠습니까?'
-      );
-      
-      if (permissionDialog) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            console.log('위치 정보 권한 승인됨');
-            // 위치 정보 동의 상태 저장
-            localStorage.setItem('locationPermissionGranted', 'true');
-          },
-          (error) => {
-            console.error('위치 정보 권한 거부됨:', error);
-            localStorage.setItem('locationPermissionGranted', 'false');
-          }
-        );
-      } else {
-        localStorage.setItem('locationPermissionGranted', 'false');
-      }
+    if (response?.data?.refreshToken) {
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      console.log('리프레시 토큰 저장됨:', response.data.refreshToken.substring(0, 20) + '...');
     }
-  };
+    
+    // 사용자 정보 가져오기
+    const userData = await getCurrentUser();
+    const typedUser = userData as User;
+    setUser(typedUser);
+    
+    // 사용자 정보를 로컬 스토리지에 저장
+    localStorage.setItem('user', JSON.stringify(typedUser));
+  } catch (err: any) {
+    setError(err.response?.data?.message || '로그인에 실패했습니다.');
+    console.error('로그인 실패:', err);
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+};
 
-
-   // 로그아웃 함수
+  // 로그아웃 함수
   const logout = () => {
     apiLogout();
     setUser(null);

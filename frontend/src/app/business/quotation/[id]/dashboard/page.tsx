@@ -1,92 +1,63 @@
 // app/business/dashboard/page.tsx
 // 미용업체 대시보드 구현
 // 업주가 견적 요청을 확인하고 관리할 수 있는 대시보드
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
-import { getAvailableQuoteRequests } from '@/api/quotation';
-import { useLocation } from '@/hooks/useLocation';
+import { getBusinessQuotations } from '@/api/business';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 
-interface QuoteRequest {
-  id: number;
+interface Quotation {
+  id: string;
+  requestId: string;
   customerName: string;
   serviceType: string;
   address: string;
+  date: string;
   status: 'PENDING' | 'OFFERED' | 'ACCEPTED' | 'COMPLETED';
-  createdAt: string;
-  latitude: number;
-  longitude: number;
+  price?: number;
 }
 
 export default function BusinessDashboardPage() {
-  const { user, isAuthenticated, loading } = useAuth();
-  const { getCurrentLocation } = useLocation();
-  const [quoteRequests, setQuoteRequests] = useState<QuoteRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [quotations, setQuotations] = useState<Quotation[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('all');
-
-  // 사용자가 업체인지 확인
+  
+  // 견적 데이터 가져오기
   useEffect(() => {
-    if (!loading && user && user.role !== 'BUSINESS') {
-      // 업체가 아니면 메인 대시보드로 리디렉션
-      window.location.href = '/dashboard';
-    }
-  }, [user, loading]);
-
-  // 견적 요청 데이터 가져오기
-  useEffect(() => {
-    const fetchQuoteRequests = async () => {
-      if (!isAuthenticated) return;
-      
+    const fetchQuotations = async () => {
       try {
-        setIsLoading(true);
-        
-        // 먼저 위치 정보 가져오기 시도
-        let latitude = user?.latitude;
-        let longitude = user?.longitude;
-        
-        if (!latitude || !longitude) {
-          try {
-            const position = await getCurrentLocation();
-            latitude = position.latitude;
-            longitude = position.longitude;
-          } catch (locationError) {
-            console.warn('위치 정보를 가져오는데 실패했습니다:', locationError);
-          }
-        }
-        
-        // 견적 요청 목록 가져오기
-        const data = await getAvailableQuoteRequests(latitude, longitude, 10); // 10km 반경 내 요청
-        setQuoteRequests(data || []);
+        setLoading(true);
+        const data = await getBusinessQuotations();
+        setQuotations(data.quotations || []);
       } catch (error) {
-        console.error('견적 요청 목록 로드 실패:', error);
+        console.error('견적 데이터 로드 실패:', error);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchQuoteRequests();
-  }, [isAuthenticated, user]);
-
+    fetchQuotations();
+  }, []);
+  
   // 상태별 필터링
-  const filteredRequests = quoteRequests.filter(request => {
+  const filteredQuotations = quotations.filter(quotation => {
     if (activeTab === 'all') return true;
-    if (activeTab === 'pending') return request.status === 'PENDING';
-    if (activeTab === 'offered') return request.status === 'OFFERED';
-    if (activeTab === 'accepted') return request.status === 'ACCEPTED';
+    if (activeTab === 'pending') return quotation.status === 'PENDING';
+    if (activeTab === 'offered') return quotation.status === 'OFFERED';
+    if (activeTab === 'accepted') return quotation.status === 'ACCEPTED';
     return false;
   });
 
-  if (loading || isLoading) {
+  if (loading) {
     return <LoadingSpinner />;
   }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">업체 대시보드</h1>
+      <h1 className="text-2xl font-bold mb-6">미용업체 대시보드</h1>
       
       {/* 탭 메뉴 */}
       <div className="flex border-b mb-6">
@@ -112,7 +83,7 @@ export default function BusinessDashboardPage() {
           }`}
           onClick={() => setActiveTab('offered')}
         >
-          견적 제안함
+          제안함
         </button>
         <button
           className={`py-2 px-4 ${
@@ -124,25 +95,24 @@ export default function BusinessDashboardPage() {
         </button>
       </div>
       
-      {/* 견적 요청 목록 */}
-      {filteredRequests.length === 0 ? (
+      {/* 견적 목록 */}
+      {filteredQuotations.length === 0 ? (
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <p className="text-gray-500">현재 견적 요청이 없습니다.</p>
-          <p className="text-sm text-gray-400 mt-2">근처의 고객이 견적을 요청하면 여기에 표시됩니다.</p>
+          <p className="text-gray-500">해당하는 견적이 없습니다.</p>
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredRequests.map((request) => {
+          {filteredQuotations.map((quotation) => {
             // 상태에 따른 스타일과 액션 버튼 설정
             let statusStyle = "";
             let actionButton = null;
             
-            switch (request.status) {
+            switch (quotation.status) {
               case 'PENDING':
                 statusStyle = "bg-yellow-100 text-yellow-800";
                 actionButton = (
                   <Link 
-                    href={`/business/quotation/${request.id}`}
+                    href={`/business/quotation/${quotation.requestId}`}
                     className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
                   >
                     견적 제안하기
@@ -159,7 +129,7 @@ export default function BusinessDashboardPage() {
                 statusStyle = "bg-green-100 text-green-800";
                 actionButton = (
                   <Link 
-                    href={`/chat/${request.id}`}
+                    href={`/chat/${quotation.id}`}
                     className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
                   >
                     채팅하기
@@ -171,24 +141,27 @@ export default function BusinessDashboardPage() {
             }
             
             return (
-              <div key={request.id} className="bg-white rounded-lg shadow-sm p-4 border">
+              <div key={quotation.id} className="bg-white rounded-lg shadow-sm p-4 border">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-medium">{request.serviceType}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{request.customerName} 고객</p>
-                    <p className="text-sm text-gray-500 mt-1">{request.address}</p>
+                    <h3 className="font-medium">{quotation.serviceType}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{quotation.customerName} 고객</p>
+                    <p className="text-sm text-gray-500 mt-1">{quotation.address}</p>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs ${statusStyle}`}>
-                    {request.status === 'PENDING' && '신규 요청'}
-                    {request.status === 'OFFERED' && '제안함'}
-                    {request.status === 'ACCEPTED' && '진행중'}
-                    {request.status === 'COMPLETED' && '완료'}
+                    {quotation.status === 'PENDING' && '신규 요청'}
+                    {quotation.status === 'OFFERED' && '제안함'}
+                    {quotation.status === 'ACCEPTED' && '진행중'}
+                    {quotation.status === 'COMPLETED' && '완료'}
                   </span>
                 </div>
                 
                 <div className="flex justify-between items-center mt-4">
                   <div className="text-sm">
-                    {new Date(request.createdAt).toLocaleDateString()}
+                    {quotation.date}
+                    {quotation.price && (
+                      <span className="ml-3 font-medium">{quotation.price.toLocaleString()}원</span>
+                    )}
                   </div>
                   {actionButton}
                 </div>

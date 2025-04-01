@@ -102,7 +102,7 @@ export default function KakaoMap({
   return (
     <>
       <Script
-        src={`http://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=${useLibraries}&autoload=false`}
+        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=${useLibraries}&autoload=false`}
         onLoad={() => {
           if (window.kakao) {
             window.kakao.maps.load(() => {
@@ -111,7 +111,7 @@ export default function KakaoMap({
             });
           }
         }}
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
       />
       
       <div 

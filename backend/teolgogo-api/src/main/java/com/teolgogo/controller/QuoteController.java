@@ -7,7 +7,6 @@ import com.teolgogo.entity.QuoteRequest;
 import com.teolgogo.entity.User;
 import com.teolgogo.service.QuoteService;
 import com.teolgogo.service.NotificationService;
-import com.teolgogo.service.PushNotificationService; // 추가된 import
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
-import jakarta.persistence.EntityNotFoundException; // 이 import도 필요할 수 있습니다
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,13 +28,11 @@ public class QuoteController {
 
     private final QuoteService quoteService;
     private final NotificationService notificationService;
-    private PushNotificationService pushNotificationService = null;
 
     @Autowired
     public QuoteController(QuoteService quoteService, NotificationService notificationService) {
         this.quoteService = quoteService;
         this.notificationService = notificationService;
-        this.pushNotificationService = pushNotificationService;
     }
 
     /**
@@ -50,32 +46,8 @@ public class QuoteController {
 
         QuoteRequestDTO createdRequest = quoteService.createQuoteRequest(user, requestDTO, petPhotos);
 
-        // 주변 업체에 푸시 알림 전송 (수정된 부분)
-        try {
-            // 위치 정보가 있는 경우에만 주변 업체에 알림 전송
-            if (requestDTO.getLatitude() != null && requestDTO.getLongitude() != null) {
-                String title = "새로운 견적 요청";
-                String body = String.format("%s님이 %s 서비스에 대한 견적을 요청했습니다.", user.getName(), requestDTO.getServiceType());
-                String url = "/business/quotation/" + createdRequest.getId();
-
-                // 5km 반경 내 업체에 알림 전송 (PushNotificationService 사용)
-                int sentCount = pushNotificationService.sendNearbyBusinessPushNotification(
-                        requestDTO.getLatitude(),
-                        requestDTO.getLongitude(),
-                        5.0, // 5km 반경
-                        title,
-                        body,
-                        url
-                );
-
-                System.out.println(String.format("알림을 %d개의 업체에 전송했습니다.", sentCount));
-            } else {
-                System.out.println("위치 정보가 없어 푸시 알림을 전송하지 않았습니다.");
-            }
-        } catch (Exception e) {
-            System.err.println("푸시 알림 전송 중 오류 발생: " + e.getMessage());
-            // 알림 실패해도 요청 자체는 성공 처리
-        }
+        // 주변 업체에 푸시 알림 전송
+        notificationService.sendQuoteRequestNotification(createdRequest.getId());
 
         return ResponseEntity.ok(createdRequest);
     }
@@ -145,34 +117,8 @@ public class QuoteController {
 
         QuoteResponseDTO createdOffer = quoteService.createQuoteOffer(user, requestId, offerDTO);
 
-        // 고객에게 견적 제안 알림 전송 (수정된 부분)
-        try {
-            // QuoteRequest에서 고객 ID 가져오기 (DTO에 직접 없는 경우)
-            QuoteRequest request = quoteService.getQuoteRequestById(requestId);
-            Long customerId = request.getCustomer().getId();
-
-            String title = "새로운 견적 제안";
-            String body = String.format("%s 업체에서 %s원의 견적을 제안했습니다.",
-                    user.getBusinessName() != null ? user.getBusinessName() : user.getName(),
-                    String.format("%,d", offerDTO.getPrice()));
-            String url = "/quotation/" + requestId;
-
-            boolean sent = pushNotificationService.sendPushNotification(
-                    customerId,
-                    title,
-                    body,
-                    url
-            );
-
-            if (sent) {
-                System.out.println("고객에게 견적 제안 알림을 전송했습니다.");
-            } else {
-                System.out.println("고객에게 알림을 전송할 수 없습니다.");
-            }
-        } catch (Exception e) {
-            System.err.println("푸시 알림 전송 중 오류 발생: " + e.getMessage());
-            // 알림 실패해도 요청 자체는 성공 처리
-        }
+        // 고객에게 견적 제안 알림 전송
+        notificationService.sendQuoteOfferNotification(createdOffer.getId());
 
         return ResponseEntity.ok(createdOffer);
     }

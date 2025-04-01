@@ -57,42 +57,37 @@ export default function CreateQuoteRequestPage() {
   
   // 비로그인 상태 또는 업체 회원인 경우 리디렉션
   useEffect(() => {
-    // 비로그인 상태 또는 업체 회원인 경우 리디렉션
     if (!isAuthenticated) {
       router.push('/login?redirect=/quotes/create');
-      return;
-    } 
-    
-    if (user && user.role !== 'CUSTOMER') {
-      // 업체 회원인 경우 대시보드로 리디렉션
-      // showToast 대신 alert 사용 또는 MainContext에서 가져오기
-      alert('업체 회원은 견적 요청을 생성할 수 없습니다.');
+    } else if (user && user.role !== 'CUSTOMER') {
       router.push('/dashboard');
-      return;
     }
-    
-    // 위치 정보 동의 상태 확인
-    const locationPermission = localStorage.getItem('locationPermissionGranted');
-    if (locationPermission !== 'true') {
-      // 위치 정보 동의가 없는 경우 확인 대화상자 표시
-      const confirmPermission = confirm(
-        '견적 요청을 위해서는 위치 정보 제공이 필요합니다. 위치 정보 제공에 동의하시겠습니까?'
-      );
+  }, [isAuthenticated, user, router]);
+  
+  // 현재 위치 가져오기
+  const fetchCurrentLocation = async () => {
+    setLocationLoading(true);
+    try {
+      const { latitude, longitude } = await getCurrentLocation();
+      const address = await getAddressFromCoords(latitude, longitude);
       
-      if (confirmPermission) {
-        // 사용자가 동의한 경우 위치 정보 요청
-        // fetchCurrentLocation 대신 getCurrentLocation 사용
-        getCurrentLocation().catch(error => {
-          console.error('위치 정보 가져오기 실패:', error);
-          alert('위치 정보를 가져오는데 실패했습니다. 위치 정보를 허용해주세요.');
-        });
-      } else {
-        // 사용자가 거부한 경우 메인 페이지로 리디렉션
-        alert('견적 요청을 위해서는 위치 정보 제공이 필요합니다.');
-        router.push('/dashboard');
-      }
+      setFormData(prev => ({
+        ...prev,
+        latitude,
+        longitude,
+        address: address || prev.address,
+      }));
+      setLocationSelected(true);
+    } catch (error) {
+      console.error('위치 정보를 가져오는데 실패했습니다:', error);
+      setErrors(prev => ({
+        ...prev,
+        location: '위치 정보를 가져오는데 실패했습니다. 주소를 직접 입력해주세요.'
+      }));
+    } finally {
+      setLocationLoading(false);
     }
-  }, [isAuthenticated, user, router, getCurrentLocation]);
+  };
   
   // 입력 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -155,66 +150,32 @@ export default function CreateQuoteRequestPage() {
     setItems(prev => prev.filter(item => item.id !== id));
   };
   
-  // 위치 정보 관련 부분
-const [mapKey, setMapKey] = useState(Date.now()); // 맵 컴포넌트 리렌더링용 키
-
-// 현재 위치 가져오기
-const fetchCurrentLocation = async () => {
-  setLocationLoading(true);
-  setErrors((prev) => ({ ...prev, location: '' })); // 이전 에러 메시지 초기화
-  
-  try {
-    const { latitude, longitude } = await getCurrentLocation();
-    console.log('현재 위치 정보:', latitude, longitude);
+  // 위치 선택 핸들러
+  const handleLocationSelect = (lat: number, lng: number, address: string) => {
+    console.log('위치 선택됨:', lat, lng, address);
     
-    const address = await getAddressFromCoords(latitude, longitude);
-    console.log('현재 위치 주소:', address);
-    
-    setFormData(prev => ({
-      ...prev,
-      latitude,
-      longitude,
-      address: address || prev.address,
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        latitude: lat,
+        longitude: lng,
+        address: address
+      };
+      console.log('새 폼 데이터:', newData);
+      return newData;
+    });
     
     setLocationSelected(true);
-    setMapKey(Date.now()); // 맵 컴포넌트 강제 리렌더링
     
-    return { latitude, longitude, address };
-  } catch (error) {
-    console.error('위치 정보를 가져오는데 실패했습니다:', error);
-    setErrors(prev => ({
-      ...prev,
-      location: '위치 정보를 가져오는데 실패했습니다. 주소를 직접 입력하거나 지도에서 선택해주세요.'
-    }));
-    return null;
-  } finally {
-    setLocationLoading(false);
-  }
-};
-
-// 위치 선택 핸들러
-const handleLocationSelect = (lat: number, lng: number, address: string) => {
-  console.log('위치 선택됨:', lat, lng, address);
-  
-  setFormData(prev => ({
-    ...prev,
-    latitude: lat,
-    longitude: lng,
-    address: address
-  }));
-  
-  setLocationSelected(true);
-  
-  // 위치 오류 제거
-  if (errors.location) {
-    setErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors.location;
-      return newErrors;
-    });
-  }
-};
+    // 위치 오류 제거
+    if (errors.location) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.location;
+        return newErrors;
+      });
+    }
+  };
   
   // 사진 업로드 핸들러
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -351,21 +312,17 @@ const handleGoBack = () => {
         ...formData,
         items: items.map(({ id, ...item }) => item), // id 제외
         preferredDate: formData.preferredDate ? new Date(formData.preferredDate).toISOString() : undefined,
-        photoConsent: photoConsent // 사진 동의 추가
       };
-      
-      console.log("견적 요청 데이터:", requestData); // 디버깅용
       
       // 사진 파일 준비
       const photoFiles = petPhotos.map(photo => photo.file);
       
-      // API 호출 - quotation.ts의 함수 사용
+      // API 호출
       const response = await createQuotationRequest(requestData, photoFiles);
       
       // 성공 시 상세 페이지로 이동
-      router.push(`/quotation/${response.id}`);
+      router.push(`/quotes/${response.id}`);
     } catch (error: any) {
-      console.error("견적 요청 실패:", error);
       // 오류 처리
       setErrors({
         submit: error.response?.data?.message || '견적 요청 생성 중 오류가 발생했습니다.'
@@ -592,67 +549,61 @@ const handleGoBack = () => {
         </div>
         
         {/* 위치 선택 섹션 */}
-        // 견적 요청 폼 내 위치 정보 섹션 렌더링 부분
-<div className="bg-white shadow-sm rounded-lg p-6">
-  <h2 className="text-lg font-medium mb-4">위치 정보</h2>
-  
-  <div className="mb-4">
-    <button
-      type="button"
-      onClick={fetchCurrentLocation}
-      disabled={locationLoading}
-      className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-    >
-      {locationLoading ? '위치 가져오는 중...' : '현재 위치 가져오기'}
-    </button>
-    
-    {formData.address && (
-      <div className="mt-2 text-sm">
-        <span className="font-medium">선택된 주소:</span> {formData.address}
-      </div>
-    )}
-  </div>
-  
-  <p className="text-sm text-gray-600 mb-4">
-    지도에서 원하는 위치를 클릭하거나 마커를 드래그하여 위치를 선택해주세요.
-  </p>
-  
-  {/* 카카오 맵 */}
-  <div className="border rounded-lg p-1 bg-gray-50">
-  <EnhancedKakaoMap
-  width="100%"
-  height="400px"
-  initialLatitude={formData.latitude || 37.5665}
-  initialLongitude={formData.longitude || 126.9780}
-  level={3}
-  selectable={true}
-  onLocationSelect={handleLocationSelect}
-/>
-  </div>
-  
-  {errors.location && (
-    <p className="mt-1 text-sm text-red-600">{errors.location}</p>
-  )}
-  
-  {/* 상세 주소 */}
-  <div className="mt-4">
-    <label htmlFor="addressDetail" className="block text-sm font-medium text-gray-700 mb-1">
-      상세 주소 <span className="text-red-500">*</span>
-    </label>
-    <input
-      id="addressDetail"
-      name="addressDetail"
-      type="text"
-      value={formData.addressDetail}
-      onChange={handleChange}
-      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      placeholder="건물명, 동/호수 등 상세 주소를 입력하세요"
-    />
-    {errors.addressDetail && (
-      <p className="mt-1 text-sm text-red-600">{errors.addressDetail}</p>
-    )}
-  </div>
-</div>
+        <div className="bg-white shadow-sm rounded-lg p-6">
+          <h2 className="text-lg font-medium mb-4">위치 정보</h2>
+          
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={fetchCurrentLocation}
+              disabled={locationLoading}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              {locationLoading ? '위치 가져오는 중...' : '현재 위치 가져오기'}
+            </button>
+          </div>
+          
+          <p className="text-sm text-gray-600 mb-4">
+            지도에서 원하는 위치를 클릭하거나 마커를 드래그하여 위치를 선택해주세요.
+          </p>
+          
+          {/* 카카오 맵 */}
+          <EnhancedKakaoMap
+            width="100%"
+            height="400px"
+            initialLatitude={37.5665}
+            initialLongitude={126.9780}
+            level={3}
+            selectable={true}
+            onLocationSelect={(lat, lng, address) => {
+              console.log('선택된 위치:', lat, lng, address);
+              // 여기서 폼 데이터 업데이트 등의 작업 수행
+            }}
+          />
+          
+          {errors.location && (
+            <p className="mt-1 text-sm text-red-600">{errors.location}</p>
+          )}
+          
+          {/* 상세 주소 */}
+          <div className="mt-4">
+            <label htmlFor="addressDetail" className="block text-sm font-medium text-gray-700 mb-1">
+              상세 주소 <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="addressDetail"
+              name="addressDetail"
+              type="text"
+              value={formData.addressDetail}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="건물명, 동/호수 등 상세 주소를 입력하세요"
+            />
+            {errors.addressDetail && (
+              <p className="mt-1 text-sm text-red-600">{errors.addressDetail}</p>
+            )}
+          </div>
+        </div>
         
         {/* 견적 항목 섹션 */}
         <div className="bg-white shadow-sm rounded-lg p-6">
